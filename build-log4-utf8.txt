@@ -1,0 +1,255 @@
+﻿build	Set up job	´╗┐2026-06-08T20:10:59.1906349Z Current runner version: '2.334.0'
+build	Set up job	2026-06-08T20:10:59.1935627Z ##[group]Runner Image Provisioner
+build	Set up job	2026-06-08T20:10:59.1936544Z Hosted Compute Agent
+build	Set up job	2026-06-08T20:10:59.1937168Z Version: 20260520.533
+build	Set up job	2026-06-08T20:10:59.1938247Z Commit: 189110e25284a9812c124fd27b339e2fb4f2f9db
+build	Set up job	2026-06-08T20:10:59.1939101Z Build Date: 2026-05-20T17:44:04Z
+build	Set up job	2026-06-08T20:10:59.1939846Z Worker ID: {392b4c20-d548-4b07-89a3-ae6654613c1f}
+build	Set up job	2026-06-08T20:10:59.1940615Z Azure Region: northcentralus
+build	Set up job	2026-06-08T20:10:59.1941253Z ##[endgroup]
+build	Set up job	2026-06-08T20:10:59.1942791Z ##[group]Operating System
+build	Set up job	2026-06-08T20:10:59.1943548Z Ubuntu
+build	Set up job	2026-06-08T20:10:59.1944091Z 24.04.4
+build	Set up job	2026-06-08T20:10:59.1944602Z LTS
+build	Set up job	2026-06-08T20:10:59.1945178Z ##[endgroup]
+build	Set up job	2026-06-08T20:10:59.1945777Z ##[group]Runner Image
+build	Set up job	2026-06-08T20:10:59.1946406Z Image: ubuntu-24.04
+build	Set up job	2026-06-08T20:10:59.1947000Z Version: 20260525.161.1
+build	Set up job	2026-06-08T20:10:59.1948400Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260525.161/images/ubuntu/Ubuntu2404-Readme.md
+build	Set up job	2026-06-08T20:10:59.1950283Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260525.161
+build	Set up job	2026-06-08T20:10:59.1951297Z ##[endgroup]
+build	Set up job	2026-06-08T20:10:59.1952521Z ##[group]GITHUB_TOKEN Permissions
+build	Set up job	2026-06-08T20:10:59.1954444Z Contents: read
+build	Set up job	2026-06-08T20:10:59.1955143Z Metadata: read
+build	Set up job	2026-06-08T20:10:59.1955719Z Packages: read
+build	Set up job	2026-06-08T20:10:59.1956699Z ##[endgroup]
+build	Set up job	2026-06-08T20:10:59.1959119Z Secret source: Actions
+build	Set up job	2026-06-08T20:10:59.1960241Z Prepare workflow directory
+build	Set up job	2026-06-08T20:10:59.2311208Z Prepare all required actions
+build	Set up job	2026-06-08T20:10:59.2351189Z Getting action download info
+build	Set up job	2026-06-08T20:10:59.7419174Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+build	Set up job	2026-06-08T20:10:59.9875159Z Download action repository 'actions/setup-java@v4' (SHA:c1e323688fd81a25caa38c78aa6df2d33d3e20d9)
+build	Set up job	2026-06-08T20:11:00.4526869Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+build	Set up job	2026-06-08T20:11:00.6971621Z Complete job name: build
+build	Run actions/checkout@v4	´╗┐2026-06-08T20:11:00.7801034Z ##[group]Run actions/checkout@v4
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7802373Z with:
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7803192Z   repository: omsingh02/nwerf-android
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7812640Z   token: ***
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7813439Z   ssh-strict: true
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7814244Z   ssh-user: git
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7815064Z   persist-credentials: true
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7815982Z   clean: true
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7816808Z   sparse-checkout-cone-mode: true
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7818094Z   fetch-depth: 1
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7818911Z   fetch-tags: false
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7819747Z   show-progress: true
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7820569Z   lfs: false
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7821337Z   submodules: false
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7822210Z   set-safe-directory: true
+build	Run actions/checkout@v4	2026-06-08T20:11:00.7823420Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:00.8972059Z Syncing repository: omsingh02/nwerf-android
+build	Run actions/checkout@v4	2026-06-08T20:11:00.8974872Z ##[group]Getting Git version info
+build	Run actions/checkout@v4	2026-06-08T20:11:00.8976296Z Working directory is '/home/runner/work/nwerf-android/nwerf-android'
+build	Run actions/checkout@v4	2026-06-08T20:11:00.8978818Z [command]/usr/bin/git version
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9073447Z git version 2.54.0
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9100835Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9114758Z Temporarily overriding HOME='/home/runner/work/_temp/a39411b6-4d57-4150-855b-8dae21d7fdac' before making global git config changes
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9118657Z Adding repository directory to the temporary git global config as a safe directory
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9127242Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nwerf-android/nwerf-android
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9177081Z Deleting the contents of '/home/runner/work/nwerf-android/nwerf-android'
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9180930Z ##[group]Initializing the repository
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9184866Z [command]/usr/bin/git init /home/runner/work/nwerf-android/nwerf-android
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9314273Z hint: Using 'master' as the name for the initial branch. This default branch name
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9317280Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9320024Z hint: to use in all of your new repositories, which will suppress this warning,
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9322406Z hint: call:
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9323568Z hint:
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9324578Z hint: 	git config --global init.defaultBranch <name>
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9326394Z hint:
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9328311Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9330841Z hint: 'development'. The just-created branch can be renamed via this command:
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9332660Z hint:
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9333441Z hint: 	git branch -m <name>
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9334319Z hint:
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9335516Z hint: Disable this message with "git config set advice.defaultBranchName false"
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9337949Z Initialized empty Git repository in /home/runner/work/nwerf-android/nwerf-android/.git/
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9341116Z [command]/usr/bin/git remote add origin https://github.com/omsingh02/nwerf-android
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9376015Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9377446Z ##[group]Disabling automatic garbage collection
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9379514Z [command]/usr/bin/git config --local gc.auto 0
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9407934Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9409323Z ##[group]Setting up auth
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9414953Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9449409Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9806430Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Run actions/checkout@v4	2026-06-08T20:11:00.9836608Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Run actions/checkout@v4	2026-06-08T20:11:01.0052199Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build	Run actions/checkout@v4	2026-06-08T20:11:01.0085912Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build	Run actions/checkout@v4	2026-06-08T20:11:01.0302996Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+build	Run actions/checkout@v4	2026-06-08T20:11:01.0337311Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:01.0339178Z ##[group]Fetching the repository
+build	Run actions/checkout@v4	2026-06-08T20:11:01.0346692Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +278fc6c5a0a942aba7afb78d15499ee74ea44adb:refs/remotes/origin/main
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4853853Z From https://github.com/omsingh02/nwerf-android
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4855669Z  * [new ref]         278fc6c5a0a942aba7afb78d15499ee74ea44adb -> origin/main
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4895794Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4897984Z ##[group]Determining the checkout info
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4899672Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4902514Z [command]/usr/bin/git sparse-checkout disable
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4946959Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4974911Z ##[group]Checking out the ref
+build	Run actions/checkout@v4	2026-06-08T20:11:01.4978445Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+build	Run actions/checkout@v4	2026-06-08T20:11:01.5142079Z Switched to a new branch 'main'
+build	Run actions/checkout@v4	2026-06-08T20:11:01.5145607Z branch 'main' set up to track 'origin/main'.
+build	Run actions/checkout@v4	2026-06-08T20:11:01.5154068Z ##[endgroup]
+build	Run actions/checkout@v4	2026-06-08T20:11:01.5191587Z [command]/usr/bin/git log -1 --format=%H
+build	Run actions/checkout@v4	2026-06-08T20:11:01.5212983Z 278fc6c5a0a942aba7afb78d15499ee74ea44adb
+build	Set up JDK 17	´╗┐2026-06-08T20:11:01.5576786Z ##[group]Run actions/setup-java@v4
+build	Set up JDK 17	2026-06-08T20:11:01.5578114Z with:
+build	Set up JDK 17	2026-06-08T20:11:01.5578911Z   java-version: 17
+build	Set up JDK 17	2026-06-08T20:11:01.5579783Z   distribution: zulu
+build	Set up JDK 17	2026-06-08T20:11:01.5580660Z   cache: gradle
+build	Set up JDK 17	2026-06-08T20:11:01.5581508Z   java-package: jdk
+build	Set up JDK 17	2026-06-08T20:11:01.5582387Z   check-latest: false
+build	Set up JDK 17	2026-06-08T20:11:01.5583478Z   server-id: github
+build	Set up JDK 17	2026-06-08T20:11:01.5584374Z   server-username: GITHUB_ACTOR
+build	Set up JDK 17	2026-06-08T20:11:01.5585428Z   server-password: GITHUB_TOKEN
+build	Set up JDK 17	2026-06-08T20:11:01.5586487Z   overwrite-settings: true
+build	Set up JDK 17	2026-06-08T20:11:01.5653652Z   job-status: success
+build	Set up JDK 17	2026-06-08T20:11:01.5670618Z   token: ***
+build	Set up JDK 17	2026-06-08T20:11:01.5671521Z ##[endgroup]
+build	Set up JDK 17	2026-06-08T20:11:01.7685312Z ##[group]Installed distributions
+build	Set up JDK 17	2026-06-08T20:11:01.7708947Z Trying to resolve the latest version from remote
+build	Set up JDK 17	2026-06-08T20:11:01.8642179Z Resolved latest version as 17.0.19+10
+build	Set up JDK 17	2026-06-08T20:11:01.8644700Z Trying to download...
+build	Set up JDK 17	2026-06-08T20:11:01.8648617Z Downloading Java 17.0.19+10 (Zulu) from https://cdn.azul.com/zulu/bin/zulu17.66.19-ca-crac-jdk17.0.19-linux_x64.tar.gz ...
+build	Set up JDK 17	2026-06-08T20:11:05.3255332Z Extracting Java archive...
+build	Set up JDK 17	2026-06-08T20:11:05.3363610Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/16353af9-103a-4ebd-8acf-c597517f7161 -f /home/runner/work/_temp/e06520d2-e511-4842-861d-c281355c48a1
+build	Set up JDK 17	2026-06-08T20:11:08.0750552Z Java 17.0.19+10 was downloaded
+build	Set up JDK 17	2026-06-08T20:11:08.0751648Z Setting Java 17.0.19+10 as the default
+build	Set up JDK 17	2026-06-08T20:11:08.0774463Z Creating toolchains.xml for JDK version 17 from zulu
+build	Set up JDK 17	2026-06-08T20:11:08.0836685Z Writing to /home/runner/.m2/toolchains.xml
+build	Set up JDK 17	2026-06-08T20:11:08.0837334Z 
+build	Set up JDK 17	2026-06-08T20:11:08.0838093Z Java configuration:
+build	Set up JDK 17	2026-06-08T20:11:08.0838995Z   Distribution: zulu
+build	Set up JDK 17	2026-06-08T20:11:08.0839564Z   Version: 17.0.19+10
+build	Set up JDK 17	2026-06-08T20:11:08.0840232Z   Path: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.19-10/x64
+build	Set up JDK 17	2026-06-08T20:11:08.0840809Z 
+build	Set up JDK 17	2026-06-08T20:11:08.0841982Z ##[endgroup]
+build	Set up JDK 17	2026-06-08T20:11:08.0858068Z Creating settings.xml with server-id: github
+build	Set up JDK 17	2026-06-08T20:11:08.0865535Z Writing to /home/runner/.m2/settings.xml
+build	Set up JDK 17	2026-06-08T20:11:08.3551391Z gradle cache is not found
+build	Grant execute permission for gradlew	´╗┐2026-06-08T20:11:08.3701646Z ##[group]Run chmod +x gradlew
+build	Grant execute permission for gradlew	2026-06-08T20:11:08.3702043Z ^[[36;1mchmod +x gradlew^[[0m
+build	Grant execute permission for gradlew	2026-06-08T20:11:08.3734256Z shell: /usr/bin/bash -e {0}
+build	Grant execute permission for gradlew	2026-06-08T20:11:08.3734601Z env:
+build	Grant execute permission for gradlew	2026-06-08T20:11:08.3734918Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.19-10/x64
+build	Grant execute permission for gradlew	2026-06-08T20:11:08.3735451Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.19-10/x64
+build	Grant execute permission for gradlew	2026-06-08T20:11:08.3735871Z ##[endgroup]
+build	Build with Gradle	´╗┐2026-06-08T20:11:08.3850926Z ##[group]Run ./gradlew assembleDebug
+build	Build with Gradle	2026-06-08T20:11:08.3851334Z ^[[36;1m./gradlew assembleDebug^[[0m
+build	Build with Gradle	2026-06-08T20:11:08.3876901Z shell: /usr/bin/bash -e {0}
+build	Build with Gradle	2026-06-08T20:11:08.3877216Z env:
+build	Build with Gradle	2026-06-08T20:11:08.3877818Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.19-10/x64
+build	Build with Gradle	2026-06-08T20:11:08.3878382Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.19-10/x64
+build	Build with Gradle	2026-06-08T20:11:08.3878831Z ##[endgroup]
+build	Build with Gradle	2026-06-08T20:11:08.4750062Z Downloading https://services.gradle.org/distributions/gradle-8.4-all.zip
+build	Build with Gradle	2026-06-08T20:11:10.2620299Z ....................10%....................20%....................30%.....................40%....................50%....................60%.....................70%....................80%....................90%.....................100%
+build	Build with Gradle	2026-06-08T20:11:13.1874344Z 
+build	Build with Gradle	2026-06-08T20:11:13.1888849Z Welcome to Gradle 8.4!
+build	Build with Gradle	2026-06-08T20:11:13.1918343Z 
+build	Build with Gradle	2026-06-08T20:11:13.1943760Z Here are the highlights of this release:
+build	Build with Gradle	2026-06-08T20:11:13.1944664Z  - Compiling and testing with Java 21
+build	Build with Gradle	2026-06-08T20:11:13.1945701Z  - Faster Java compilation on Windows
+build	Build with Gradle	2026-06-08T20:11:13.1946643Z  - Role focused dependency configurations creation
+build	Build with Gradle	2026-06-08T20:11:13.1947362Z 
+build	Build with Gradle	2026-06-08T20:11:13.1948365Z For more details see https://docs.gradle.org/8.4/release-notes.html
+build	Build with Gradle	2026-06-08T20:11:13.1949184Z 
+build	Build with Gradle	2026-06-08T20:11:13.2857001Z Starting a Gradle Daemon (subsequent builds will be faster)
+build	Build with Gradle	2026-06-08T20:12:10.0876704Z > Task :app:preBuild UP-TO-DATE
+build	Build with Gradle	2026-06-08T20:12:10.0888322Z > Task :app:preDebugBuild UP-TO-DATE
+build	Build with Gradle	2026-06-08T20:12:10.0889149Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+build	Build with Gradle	2026-06-08T20:12:10.0889985Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+build	Build with Gradle	2026-06-08T20:12:23.3918250Z 
+build	Build with Gradle	2026-06-08T20:12:23.3919257Z > Task :app:checkDebugAarMetadata
+build	Build with Gradle	2026-06-08T20:12:23.3922322Z WARNING: [Processor] Library '/home/runner/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.2.1/cbf4e0a569db4a31cbae164ad04ee66cdbff5105/media3-session-1.2.1.aar' contains references to both AndroidX and old support library. This seems like the library is partially migrated. Jetifier will try to rewrite the library anyway.
+build	Build with Gradle	2026-06-08T20:12:23.3948461Z  Example of androidX reference: 'androidx/media3/session/LegacyConversions'
+build	Build with Gradle	2026-06-08T20:12:23.3978637Z  Example of support library reference: 'android/support/v4/media/session/MediaControllerCompat$PlaybackInfo'
+build	Build with Gradle	2026-06-08T20:12:28.7874889Z 
+build	Build with Gradle	2026-06-08T20:12:28.7900139Z > Task :app:generateDebugResValues
+build	Build with Gradle	2026-06-08T20:12:28.9878496Z > Task :app:mapDebugSourceSetPaths
+build	Build with Gradle	2026-06-08T20:12:28.9908454Z > Task :app:generateDebugResources
+build	Build with Gradle	2026-06-08T20:12:29.8868506Z > Task :app:packageDebugResources
+build	Build with Gradle	2026-06-08T20:12:30.5855223Z > Task :app:mergeDebugResources
+build	Build with Gradle	2026-06-08T20:12:31.0868810Z > Task :app:createDebugCompatibleScreenManifests
+build	Build with Gradle	2026-06-08T20:12:31.0927446Z > Task :app:extractDeepLinksDebug
+build	Build with Gradle	2026-06-08T20:12:31.1864454Z > Task :app:parseDebugLocalResources
+build	Build with Gradle	2026-06-08T20:12:31.4878597Z > Task :app:processDebugMainManifest
+build	Build with Gradle	2026-06-08T20:12:31.5855344Z > Task :app:processDebugManifest
+build	Build with Gradle	2026-06-08T20:12:33.4855331Z > Task :app:processDebugManifestForPackage
+build	Build with Gradle	2026-06-08T20:12:33.4856290Z > Task :app:javaPreCompileDebug
+build	Build with Gradle	2026-06-08T20:12:34.3855445Z > Task :app:mergeDebugShaders
+build	Build with Gradle	2026-06-08T20:12:34.4868547Z > Task :app:compileDebugShaders NO-SOURCE
+build	Build with Gradle	2026-06-08T20:12:34.4928098Z > Task :app:generateDebugAssets UP-TO-DATE
+build	Build with Gradle	2026-06-08T20:12:34.5878798Z > Task :app:mergeDebugAssets
+build	Build with Gradle	2026-06-08T20:12:34.5908403Z > Task :app:compressDebugAssets
+build	Build with Gradle	2026-06-08T20:12:34.5958264Z > Task :app:desugarDebugFileDependencies
+build	Build with Gradle	2026-06-08T20:12:36.6878993Z > Task :app:processDebugResources
+build	Build with Gradle	2026-06-08T20:12:37.4878626Z > Task :app:checkDebugDuplicateClasses
+build	Build with Gradle	2026-06-08T20:13:04.6877989Z 
+build	Build with Gradle	2026-06-08T20:13:04.6908396Z > Task :app:kaptGenerateStubsDebugKotlin
+build	Build with Gradle	2026-06-08T20:13:04.6938551Z w: Kapt currently doesn't support language version 2.0+. Falling back to 1.9.
+build	Build with Gradle	2026-06-08T20:13:15.4868086Z 
+build	Build with Gradle	2026-06-08T20:13:15.4898813Z > Task :app:mergeExtDexDebug
+build	Build with Gradle	2026-06-08T20:14:16.1868475Z > Task :app:mergeDebugJniLibFolders
+build	Build with Gradle	2026-06-08T20:14:16.1888241Z > Task :app:mergeLibDexDebug
+build	Build with Gradle	2026-06-08T20:14:16.5868580Z > Task :app:mergeDebugNativeLibs
+build	Build with Gradle	2026-06-08T20:14:17.5868867Z > Task :app:validateSigningDebug
+build	Build with Gradle	2026-06-08T20:14:17.5886021Z > Task :app:writeDebugAppMetadata
+build	Build with Gradle	2026-06-08T20:14:17.5886797Z > Task :app:writeDebugSigningConfigVersions
+build	Build with Gradle	2026-06-08T20:14:17.5927914Z 
+build	Build with Gradle	2026-06-08T20:14:17.5958174Z > Task :app:stripDebugDebugSymbols
+build	Build with Gradle	2026-06-08T20:14:17.5968712Z Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so.
+build	Build with Gradle	2026-06-08T20:14:19.7858428Z 
+build	Build with Gradle	2026-06-08T20:14:19.7878376Z > Task :app:kaptDebugKotlin
+build	Build with Gradle	2026-06-08T20:14:26.9866670Z e: file:///home/runner/work/nwerf-android/nwerf-android/app/src/main/java/com/omsingh/nwerf/UI.kt:37:35 Unresolved reference 'ExperimentalMaterial3ExpressiveApi'.
+build	Build with Gradle	2026-06-08T20:14:26.9868270Z 
+build	Build with Gradle	2026-06-08T20:14:26.9888992Z > Task :app:compileDebugKotlin FAILED
+build	Build with Gradle	2026-06-08T20:14:26.9909077Z e: file:///home/runner/work/nwerf-android/nwerf-android/app/src/main/java/com/omsingh/nwerf/UI.kt:47:8 Unresolved reference 'ExperimentalMaterial3ExpressiveApi'.
+build	Build with Gradle	2026-06-08T20:14:26.9911397Z e: file:///home/runner/work/nwerf-android/nwerf-android/app/src/main/java/com/omsingh/nwerf/UI.kt:47:8 Annotation argument must be a compile-time constant.
+build	Build with Gradle	2026-06-08T20:14:26.9916539Z e: file:///home/runner/work/nwerf-android/nwerf-android/app/src/main/java/com/omsingh/nwerf/UI.kt:58:5 Cannot access 'fun MaterialExpressiveTheme(colorScheme: ColorScheme? = ..., shapes: Shapes? = ..., typography: Typography? = ..., content: @Composable() ComposableFunction0<Unit>): Unit': it is internal in file.
+build	Build with Gradle	2026-06-08T20:14:27.0854788Z 
+build	Build with Gradle	2026-06-08T20:14:27.0888693Z 30 actionable tasks: 30 executed
+build	Build with Gradle	2026-06-08T20:14:27.0938407Z FAILURE: Build failed with an exception.
+build	Build with Gradle	2026-06-08T20:14:27.0958120Z 
+build	Build with Gradle	2026-06-08T20:14:27.0988113Z * What went wrong:
+build	Build with Gradle	2026-06-08T20:14:27.0988690Z Execution failed for task ':app:compileDebugKotlin'.
+build	Build with Gradle	2026-06-08T20:14:27.1018964Z > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+build	Build with Gradle	2026-06-08T20:14:27.1020414Z    > Compilation error. See log for more details
+build	Build with Gradle	2026-06-08T20:14:27.1020809Z 
+build	Build with Gradle	2026-06-08T20:14:27.1020932Z * Try:
+build	Build with Gradle	2026-06-08T20:14:27.1021384Z > Run with --stacktrace option to get the stack trace.
+build	Build with Gradle	2026-06-08T20:14:27.1022107Z > Run with --info or --debug option to get more log output.
+build	Build with Gradle	2026-06-08T20:14:27.1022745Z > Run with --scan to get full insights.
+build	Build with Gradle	2026-06-08T20:14:27.1023351Z > Get more help at https://help.gradle.org.
+build	Build with Gradle	2026-06-08T20:14:27.1023891Z 
+build	Build with Gradle	2026-06-08T20:14:27.1024054Z BUILD FAILED in 3m 18s
+build	Build with Gradle	2026-06-08T20:14:27.5379112Z ##[error]Process completed with exit code 1.
+build	Post Set up JDK 17	´╗┐2026-06-08T20:14:27.5567402Z Post job cleanup.
+build	Post Run actions/checkout@v4	´╗┐2026-06-08T20:14:27.7476342Z Post job cleanup.
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8455457Z [command]/usr/bin/git version
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8490809Z git version 2.54.0
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8535278Z Temporarily overriding HOME='/home/runner/work/_temp/8c435ac1-7e2c-4b71-850e-846365a49152' before making global git config changes
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8536873Z Adding repository directory to the temporary git global config as a safe directory
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8548590Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/nwerf-android/nwerf-android
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8582456Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8614121Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8837478Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8861467Z http.https://github.com/.extraheader
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8874243Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.8904393Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.9127263Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+build	Post Run actions/checkout@v4	2026-06-08T20:14:27.9153478Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+build	Complete job	´╗┐2026-06-08T20:14:27.9505263Z Cleaning up orphan processes
+build	Complete job	2026-06-08T20:14:27.9995660Z Terminate orphan process: pid (2352) (java)
+build	Complete job	2026-06-08T20:14:28.0034563Z Terminate orphan process: pid (2510) (java)
+build	Complete job	2026-06-08T20:14:28.0052267Z ##[warning]Node.js 20 actions are deprecated. The following actions are running on Node.js 20 and may not work as expected: actions/checkout@v4, actions/setup-java@v4. Actions will be forced to run with Node.js 24 by default starting June 16th, 2026. Node.js 20 will be removed from the runner on September 16th, 2026. Please check if updated versions of these actions are available that support Node.js 24. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true environment variable on the runner or in your workflow file. Once Node.js 24 becomes the default, you can temporarily opt out by setting ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
