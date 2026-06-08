@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.Nwerf" parent="android:Theme.Material.NoActionBar">
+        <!-- Material design without action bar, Compose will draw the entire UI -->
+    </style>
+</resources>
