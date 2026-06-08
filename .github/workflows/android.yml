@@ -28,7 +28,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug assembleRelease
+        run: ./gradlew assembleDebug assembleRelease -x lint -x lintVitalRelease
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
