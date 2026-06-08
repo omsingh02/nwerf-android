@@ -33,6 +33,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import java.io.File
 import kotlinx.coroutines.launch
+import kotlin.OptIn
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 
 // Sleek HSL/Dark Color Palette matching the web application
 val BackgroundColor = Color(0xFF0F0E17)
@@ -42,6 +44,7 @@ val SecondaryColor = Color(0xFF06B6D4) // Cyan Accent
 val TextColor = Color(0xFFFFFFFE)
 val MutedTextColor = Color(0xFFA7A9BE)
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NwerfTheme(content: @Composable () -> Unit) {
     val darkColors = darkColorScheme(
