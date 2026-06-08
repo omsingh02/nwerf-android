@@ -32,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import java.io.File
+import kotlinx.coroutines.launch
 
 // Sleek HSL/Dark Color Palette matching the web application
 val BackgroundColor = Color(0xFF0F0E17)
@@ -308,7 +309,7 @@ fun UploadScreen(viewModel: MainViewModel) {
             onValueChange = { title = it },
             label = { Text("Track Title") },
             modifier = Modifier.fillMaxWidth(),
-            disabled = isUploading
+            enabled = !isUploading
         )
 
         TextField(
@@ -316,7 +317,7 @@ fun UploadScreen(viewModel: MainViewModel) {
             onValueChange = { artist = it },
             label = { Text("Artist Name") },
             modifier = Modifier.fillMaxWidth(),
-            disabled = isUploading
+            enabled = !isUploading
         )
 
         Button(
