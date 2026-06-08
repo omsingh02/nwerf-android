@@ -52,7 +52,7 @@ fun NwerfTheme(content: @Composable () -> Unit) {
         onBackground = TextColor,
         onSurface = TextColor
     )
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = darkColors,
         content = content
     )
