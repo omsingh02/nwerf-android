@@ -106,11 +106,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // Fetch dynamic streaming URL (prevents URL expirations)
                 val streamUrl = client.getStreamUrl(track.file_id)
 
-                val mediaMetadata = MediaMetadata.Builder()
+                val mediaMetadataBuilder = MediaMetadata.Builder()
                     .setTitle(track.title)
                     .setArtist(track.artist)
                     .setAlbumTitle("Nwerf")
-                    .build()
+                
+                if (track.cover_art != null) {
+                    mediaMetadataBuilder.setArtworkUri(Uri.parse(track.cover_art))
+                }
+
+                val mediaMetadata = mediaMetadataBuilder.build()
 
                 val mediaItem = MediaItem.Builder()
                     .setMediaId(track.id)

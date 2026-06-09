@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="identify_song"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_btn_speak_now"
+        android:shortcutShortLabel="@string/shortcut_identify_short"
+        android:shortcutLongLabel="@string/shortcut_identify_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="nwerf://identify"
+            android:targetPackage="com.omsingh.nwerf"
+            android:targetClass="com.omsingh.nwerf.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="upload_track"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_upload"
+        android:shortcutShortLabel="@string/shortcut_upload_short"
+        android:shortcutLongLabel="@string/shortcut_upload_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="nwerf://upload"
+            android:targetPackage="com.omsingh.nwerf"
+            android:targetClass="com.omsingh.nwerf.MainActivity" />
+    </shortcut>
+</shortcuts>

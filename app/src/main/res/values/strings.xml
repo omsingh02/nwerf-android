@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Nwerf</string>
+    <string name="shortcut_identify_short">Identify</string>
+    <string name="shortcut_identify_long">Identify Song</string>
+    <string name="shortcut_upload_short">Upload</string>
+    <string name="shortcut_upload_long">Upload Track</string>
 </resources>

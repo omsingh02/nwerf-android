@@ -101,8 +101,14 @@ fun NwerfApp(viewModel: MainViewModel) {
             }
             composable("tutorial") { TutorialScreen(viewModel, navController) }
             composable("library") { LibraryScreen(viewModel) }
-            composable("identify") { IdentifyScreen(viewModel) }
-            composable("upload") { UploadScreen(viewModel) }
+            composable(
+                route = "identify",
+                deepLinks = listOf(androidx.navigation.navDeepLink { uriPattern = "nwerf://identify" })
+            ) { IdentifyScreen(viewModel) }
+            composable(
+                route = "upload",
+                deepLinks = listOf(androidx.navigation.navDeepLink { uriPattern = "nwerf://upload" })
+            ) { UploadScreen(viewModel) }
             composable("settings") { SettingsScreen(viewModel) }
         }
     }
@@ -209,21 +215,42 @@ fun LibraryScreen(viewModel: MainViewModel) {
                             headlineContent = { Text(track.title) },
                             supportingContent = { Text(track.artist) },
                             leadingContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.medium),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = if (isCurrent && isPlaying) Icons.Default.VolumeUp else Icons.Default.MusicNote,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
+                                if (track.cover_art != null) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        AsyncImage(
+                                            model = track.cover_art,
+                                            contentDescription = "Cover",
+                                            modifier = Modifier.size(48.dp).clip(MaterialTheme.shapes.medium),
+                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                        )
+                                        if (isCurrent && isPlaying) {
+                                            Box(modifier = Modifier.size(48.dp).background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.4f), MaterialTheme.shapes.medium), contentAlignment = Alignment.Center) {
+                                                Icon(Icons.Default.VolumeUp, contentDescription = null, tint = androidx.compose.ui.graphics.Color.White)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.medium),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isCurrent && isPlaying) Icons.Default.VolumeUp else Icons.Default.MusicNote,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    }
                                 }
                             },
                             trailingContent = {
-                                IconButton(onClick = { viewModel.deleteTrack(track) }) {
+                                IconButton(onClick = { 
+                                    if (currentTrack?.id == track.id) {
+                                        viewModel.togglePlay()
+                                    }
+                                    viewModel.deleteTrack(track) 
+                                }) {
                                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
                                 }
                             }
@@ -248,7 +275,14 @@ fun UploadScreen(viewModel: MainViewModel) {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         selectedFileUri = uri
-        selectedFileName = uri?.path?.substringAfterLast("/") ?: "audio.mp3"
+        uri?.let {
+            val fileName = getFileName(context, it)
+            selectedFileName = fileName
+            
+            // Auto-fill Title
+            val withoutExtension = fileName.substringBeforeLast(".")
+            title = withoutExtension.replace("_", " ").replace("-", " ")
+        }
     }
 
     Column(
@@ -602,12 +636,33 @@ fun IdentifyScreen(viewModel: MainViewModel) {
     val isUploading by viewModel.isUploading.collectAsState()
     val identifiedTracks by viewModel.identifiedTracks.collectAsState()
     val downloadingTrackIds by viewModel.downloadingTrackIds.collectAsState()
+    val libraryTracks by viewModel.tracks.collectAsState()
 
     var isRecording by remember { mutableStateOf(false) }
+    var recordingTimeLeft by remember { mutableStateOf(7) }
     var recordedFile by remember { mutableStateOf<java.io.File?>(null) }
     val recorder = remember { AudioRecorder(context) }
     val coroutineScope = rememberCoroutineScope()
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+
+    LaunchedEffect(isRecording) {
+        if (isRecording) {
+            recordingTimeLeft = 7
+            while (recordingTimeLeft > 0) {
+                kotlinx.coroutines.delay(1000)
+                recordingTimeLeft--
+            }
+            if (isRecording) { // If it wasn't cancelled early
+                isRecording = false
+                recorder.stopRecording()
+                recordedFile?.let { file ->
+                    viewModel.identifyTrack(file)
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                }
+            }
+        }
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -615,17 +670,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
         if (isGranted) {
             isRecording = true
             recordedFile = recorder.startRecording()
-            Toast.makeText(context, "Listening for 7 seconds...", Toast.LENGTH_SHORT).show()
-            coroutineScope.launch {
-                kotlinx.coroutines.delay(7000)
-                if (isRecording) {
-                    isRecording = false
-                    recorder.stopRecording()
-                    recordedFile?.let { file ->
-                        viewModel.identifyTrack(file)
-                    }
-                }
-            }
+            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
         } else {
             Toast.makeText(context, "Microphone permission is required to identify songs", Toast.LENGTH_LONG).show()
         }
@@ -657,8 +702,14 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                 if (isRecording) {
                     isRecording = false
                     recorder.stopRecording()
-                    recordedFile?.let { file ->
-                        viewModel.identifyTrack(file)
+                    if (recordingTimeLeft > 4) {
+                        // Abort if less than 3 seconds recorded
+                        Toast.makeText(context, "Recording aborted", Toast.LENGTH_SHORT).show()
+                    } else {
+                        recordedFile?.let { file ->
+                            viewModel.identifyTrack(file)
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        }
                     }
                 } else {
                     val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
@@ -668,17 +719,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                     if (hasPermission) {
                         isRecording = true
                         recordedFile = recorder.startRecording()
-                        Toast.makeText(context, "Listening for 7 seconds...", Toast.LENGTH_SHORT).show()
-                        coroutineScope.launch {
-                            kotlinx.coroutines.delay(7000)
-                            if (isRecording) {
-                                isRecording = false
-                                recorder.stopRecording()
-                                recordedFile?.let { file ->
-                                    viewModel.identifyTrack(file)
-                                }
-                            }
-                        }
+                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                     } else {
                         permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                     }
@@ -693,7 +734,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
             } else {
                 Icon(Icons.Default.Mic, contentDescription = "Identify")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(if (isRecording) "Listening..." else "Identify Song", style = MaterialTheme.typography.titleMedium)
+                Text(if (isRecording) "Listening... ${recordingTimeLeft}s" else "Identify Song", style = MaterialTheme.typography.titleMedium)
             }
         }
 
@@ -708,6 +749,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
             ) {
                 items(identifiedTracks) { track ->
                     val isDownloading = downloadingTrackIds.contains(track.id)
+                    val isDuplicate = libraryTracks.any { it.title.equals(track.title, ignoreCase = true) }
                     ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -731,6 +773,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                             Spacer(modifier = Modifier.height(16.dp))
                             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                                 OutlinedButton(onClick = {
+                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                                     coroutineScope.launch {
                                         val url = YouTubePlayer.searchYouTube("${track.title} ${track.artist}")
                                         if (url != null) {
@@ -744,11 +787,16 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Button(
-                                    onClick = { viewModel.downloadIdentifiedTrack(track) },
-                                    enabled = !isDownloading
+                                    onClick = { 
+                                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                        viewModel.downloadIdentifiedTrack(track) 
+                                    },
+                                    enabled = !isDownloading && !isDuplicate
                                 ) {
                                     if (isDownloading) {
                                         CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                                    } else if (isDuplicate) {
+                                        Text("✓ In Library")
                                     } else {
                                         Text("Add to Library")
                                     }
