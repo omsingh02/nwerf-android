@@ -172,54 +172,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _errorMessage.value = null
     }
 
-    fun syncLibrary() {
-        viewModelScope.launch {
-            _isSyncing.value = true
-            try {
-                val pat = settingsStore.githubPat.first() ?: throw Exception("Missing GitHub PAT")
-                val gistId = settingsStore.gistId.first()
-                val client = GithubClient(pat)
 
-                if (gistId.isNullOrEmpty()) {
-                    // Create new gist backup
-                    val newGistId = client.createLibraryGist()
-                    settingsStore.saveGistSettings(pat, newGistId)
-                    // Push local tracks
-                    client.updateLibraryGist(newGistId, tracks.value)
-                } else {
-                    // Merge local and remote
-                    val remoteTracks = client.fetchLibraryTracks(gistId)
-                    val localTracks = tracks.value
-
-                    // Merge strategy: unique by ID, Union sorted by added_at
-                    val merged = (localTracks + remoteTracks).distinctBy { it.id }.sortedByDescending { it.added_at }
-                    trackDao.deleteAll()
-                    trackDao.insertAll(merged)
-                    client.updateLibraryGist(gistId, merged)
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Sync failed"
-            } finally {
-                _isSyncing.value = false
-            }
-        }
-    }
-
-    fun createGist(pat: String) {
-        viewModelScope.launch {
-            _isSyncing.value = true
-            try {
-                val client = GithubClient(pat)
-                val newGistId = client.createLibraryGist()
-                settingsStore.saveGistSettings(pat, newGistId)
-                client.updateLibraryGist(newGistId, tracks.value)
-            } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to create Gist"
-            } finally {
-                _isSyncing.value = false
-            }
-        }
-    }
 
     fun uploadTrack(file: File, title: String, artist: String) {
         viewModelScope.launch {
@@ -227,8 +180,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val token = settingsStore.botToken.first() ?: throw Exception("Missing Bot Token")
                 val chatId = settingsStore.chatId.first() ?: throw Exception("Missing Chat ID")
-                val pat = settingsStore.githubPat.first()
-                val gistId = settingsStore.gistId.first()
 
                 val tg = TelegramClient(token, chatId)
                 val fileId = tg.uploadAudio(file, title, artist)

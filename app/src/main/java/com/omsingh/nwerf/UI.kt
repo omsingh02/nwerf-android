@@ -375,19 +375,14 @@ fun UploadScreen(viewModel: MainViewModel) {
 fun SettingsScreen(viewModel: MainViewModel) {
     val botToken by viewModel.settingsStore.botToken.collectAsState(initial = "")
     val chatId by viewModel.settingsStore.chatId.collectAsState(initial = "")
-    val githubPat by viewModel.settingsStore.githubPat.collectAsState(initial = "")
-    val gistId by viewModel.settingsStore.gistId.collectAsState(initial = "")
-
     var inputToken by remember { mutableStateOf("") }
     var inputChat by remember { mutableStateOf("") }
-    var inputPat by remember { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(botToken, chatId, githubPat) {
+    LaunchedEffect(botToken, chatId) {
         inputToken = botToken ?: ""
         inputChat = chatId ?: ""
-        inputPat = githubPat ?: ""
     }
     val autoDownloadContinuous by viewModel.settingsStore.autoDownloadContinuous.collectAsState(initial = false)
 

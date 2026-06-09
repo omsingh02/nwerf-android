@@ -53,13 +53,6 @@ class SettingsStore(private val context: Context) {
         }
     }
 
-    suspend fun saveGistSettings(pat: String, gist: String) {
-        context.dataStore.edit {
-            it[GITHUB_PAT] = pat
-            it[GIST_ID] = gist
-        }
-    }
-
     suspend fun setAutoDownloadContinuous(enabled: Boolean) {
         context.dataStore.edit { it[AUTO_DOWNLOAD_CONTINUOUS] = enabled }
     }
