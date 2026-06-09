@@ -4,5 +4,5 @@
     <string name="shortcut_identify_long">Identify Song</string>
     <string name="shortcut_upload_short">Upload</string>
     <string name="shortcut_upload_long">Upload Track</string>
-    <string name="default_web_client_id">REPLACE_ME_ENABLE_GOOGLE_IN_FIREBASE_CONSOLE.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">980408244825-f5hfab991pqnbteouboaalnbq0jspld1.apps.googleusercontent.com</string>
 </resources>

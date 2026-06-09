@@ -12,7 +12,20 @@
           "package_name": "com.omsingh.nwerf"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "980408244825-hu4nbvd3v87at3vgekr1622k8egovsuj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.omsingh.nwerf",
+            "certificate_hash": "4a1d11440830fecf758155cf41bb6ef743ad9072"
+          }
+        },
+        {
+          "client_id": "980408244825-f5hfab991pqnbteouboaalnbq0jspld1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBN1jJ5rdLuuBmb0IxgF4fRDM6eBsh97rk"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "980408244825-f5hfab991pqnbteouboaalnbq0jspld1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
