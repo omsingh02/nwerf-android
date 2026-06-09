@@ -36,27 +36,17 @@ import kotlinx.coroutines.launch
 import kotlin.OptIn
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 
-// Sleek HSL/Dark Color Palette matching the web application
-val BackgroundColor = Color(0xFF0F0E17)
-val CardColor = Color(0xFF1F1D2C)
-val PrimaryColor = Color(0xFF8B5CF6) // Sleek Violet
-val SecondaryColor = Color(0xFF06B6D4) // Cyan Accent
-val TextColor = Color(0xFFFFFFFE)
-val MutedTextColor = Color(0xFFA7A9BE)
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NwerfTheme(content: @Composable () -> Unit) {
-    val darkColors = darkColorScheme(
-        background = BackgroundColor,
-        surface = CardColor,
-        primary = PrimaryColor,
-        secondary = SecondaryColor,
-        onBackground = TextColor,
-        onSurface = TextColor
+    // We use the default expressive color scheme directly instead of overriding everything
+    // so that the true Material 3 Expressive vibrant palette shines through.
+    val expressiveColors = darkColorScheme(
+        primary = androidx.compose.ui.graphics.Color(0xFF8B5CF6),
+        secondary = androidx.compose.ui.graphics.Color(0xFF06B6D4)
     )
     MaterialExpressiveTheme(
-        colorScheme = darkColors,
+        colorScheme = expressiveColors,
         content = content
     )
 }
@@ -80,8 +70,7 @@ fun NwerfApp(viewModel: MainViewModel) {
                 BottomPlayer(viewModel)
                 BottomNavigationBar(navController)
             }
-        },
-        containerColor = BackgroundColor
+        }
     ) { paddingValues ->
         NavHost(
             navController = navController,
@@ -100,10 +89,7 @@ fun BottomNavigationBar(navController: androidx.navigation.NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    NavigationBar(
-        containerColor = CardColor,
-        tonalElevation = 8.dp
-    ) {
+    NavigationBar {
         val items = listOf(
             Triple("library", "Library", Icons.Default.List),
             Triple("upload", "Upload", Icons.Default.AddCircle),
@@ -112,7 +98,7 @@ fun BottomNavigationBar(navController: androidx.navigation.NavHostController) {
         items.forEach { (route, label, icon) ->
             NavigationBarItem(
                 icon = { Icon(icon, contentDescription = label) },
-                label = { Text(label, fontSize = 11.sp) },
+                label = { Text(label) },
                 selected = currentRoute == route,
                 onClick = {
                     navController.navigate(route) {
@@ -122,14 +108,7 @@ fun BottomNavigationBar(navController: androidx.navigation.NavHostController) {
                         launchSingleTop = true
                         restoreState = true
                     }
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = PrimaryColor,
-                    unselectedIconColor = MutedTextColor,
-                    selectedTextColor = PrimaryColor,
-                    unselectedTextColor = MutedTextColor,
-                    indicatorColor = Color.Transparent
-                )
+                }
             )
         }
     }
@@ -159,95 +138,71 @@ fun LibraryScreen(viewModel: MainViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Your Library", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextColor)
-                Text("${tracks.size} tracks synced", fontSize = 12.sp, color = MutedTextColor)
+                Text("Your Library", style = MaterialTheme.typography.headlineLarge)
+                Text("${tracks.size} tracks synced", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            IconButton(
-                onClick = { viewModel.syncLibrary() },
-                modifier = Modifier
-                    .background(PrimaryColor.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
-            ) {
+            FilledTonalIconButton(onClick = { viewModel.syncLibrary() }) {
                 if (isSyncing) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = PrimaryColor, strokeWidth = 2.dp)
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                 } else {
-                    Icon(Icons.Default.Refresh, contentDescription = "Sync", tint = PrimaryColor)
+                    Icon(Icons.Default.Refresh, contentDescription = "Sync")
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // Search Bar
-        TextField(
+        OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text("Search songs or artists...", color = MutedTextColor) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = MutedTextColor) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp)),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = CardColor,
-                unfocusedContainerColor = CardColor,
-                disabledContainerColor = CardColor,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
+            placeholder = { Text("Search songs or artists...") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         if (filteredTracks.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No tracks found", color = MutedTextColor, fontSize = 14.sp)
+                Text("No tracks found", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(filteredTracks) { track ->
                     val isCurrent = currentTrack?.id == track.id
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(if (isCurrent) CardColor.copy(alpha = 0.5f) else CardColor)
-                            .clickable { viewModel.playTrack(track) }
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    ElevatedCard(
+                        onClick = { viewModel.playTrack(track) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = if (isCurrent) CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else CardDefaults.elevatedCardColors()
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    Brush.linearGradient(listOf(PrimaryColor, SecondaryColor))
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = if (isCurrent && isPlaying) Icons.Default.VolumeUp else Icons.Default.MusicNote,
-                                contentDescription = null,
-                                tint = TextColor
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                track.title,
-                                fontWeight = FontWeight.SemiBold,
-                                color = if (isCurrent) PrimaryColor else TextColor,
-                                maxLines = 1
-                            )
-                            Text(track.artist, fontSize = 12.sp, color = MutedTextColor, maxLines = 1)
-                        }
-
-                        IconButton(onClick = { viewModel.deleteTrack(track) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.7f))
-                        }
+                        ListItem(
+                            colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+                            headlineContent = { Text(track.title) },
+                            supportingContent = { Text(track.artist) },
+                            leadingContent = {
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.medium),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = if (isCurrent && isPlaying) Icons.Default.VolumeUp else Icons.Default.MusicNote,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            },
+                            trailingContent = {
+                                IconButton(onClick = { viewModel.deleteTrack(track) }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -274,40 +229,39 @@ fun UploadScreen(viewModel: MainViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Text("Upload Music", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextColor)
-        Text("Upload MP3 files to your private Telegram channel.", fontSize = 13.sp, color = MutedTextColor)
+        Column {
+            Text("Upload Music", style = MaterialTheme.typography.headlineLarge)
+            Text("Upload MP3 files to your private Telegram channel.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
 
-        Box(
+        OutlinedCard(
+            onClick = { if (!isUploading) filePicker.launch("audio/*") },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(140.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(CardColor)
-                .clickable(enabled = !isUploading) { filePicker.launch("audio/*") }
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .height(160.dp)
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Default.ArrowUpward,
-                    contentDescription = null,
-                    tint = SecondaryColor,
-                    modifier = Modifier.size(36.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    if (selectedFileUri != null) selectedFileName else "Tap to Select Audio File",
-                    color = TextColor,
-                    fontWeight = FontWeight.Medium
-                )
-                Text("Limit: 50MB per file", fontSize = 11.sp, color = MutedTextColor)
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        Icons.Default.CloudUpload,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        if (selectedFileUri != null) selectedFileName else "Tap to Select Audio File",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text("Limit: 50MB per file", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
 
-        TextField(
+        OutlinedTextField(
             value = title,
             onValueChange = { title = it },
             label = { Text("Track Title") },
@@ -315,7 +269,7 @@ fun UploadScreen(viewModel: MainViewModel) {
             enabled = !isUploading
         )
 
-        TextField(
+        OutlinedTextField(
             value = artist,
             onValueChange = { artist = it },
             label = { Text("Artist Name") },
@@ -329,7 +283,6 @@ fun UploadScreen(viewModel: MainViewModel) {
                 if (uri != null && title.isNotBlank() && artist.isNotBlank()) {
                     val file = getFileFromUri(context, uri)
                     viewModel.uploadTrack(file, title, artist)
-                    // Reset fields
                     selectedFileUri = null
                     title = ""
                     artist = ""
@@ -339,14 +292,13 @@ fun UploadScreen(viewModel: MainViewModel) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
-            enabled = !isUploading && selectedFileUri != null && title.isNotBlank() && artist.isNotBlank(),
-            shape = RoundedCornerShape(16.dp)
+                .height(56.dp),
+            enabled = !isUploading && selectedFileUri != null && title.isNotBlank() && artist.isNotBlank()
         ) {
             if (isUploading) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = TextColor, strokeWidth = 2.dp)
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
             } else {
-                Text("Upload Track", fontWeight = FontWeight.Bold)
+                Text("Upload Track", style = MaterialTheme.typography.titleMedium)
             }
         }
     }
@@ -374,30 +326,25 @@ fun SettingsScreen(viewModel: MainViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
-            Text("Settings", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = TextColor)
-            Spacer(modifier = Modifier.height(8.dp))
+            Text("Settings", style = MaterialTheme.typography.headlineLarge)
         }
 
         item {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = CardColor),
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Telegram configuration", fontWeight = FontWeight.Bold, color = SecondaryColor)
-                    TextField(
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("Telegram Configuration", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    OutlinedTextField(
                         value = inputToken,
                         onValueChange = { inputToken = it },
                         label = { Text("Bot Token") },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth()
                     )
-                    TextField(
+                    OutlinedTextField(
                         value = inputChat,
                         onValueChange = { inputChat = it },
                         label = { Text("Chat ID (Channel)") },
@@ -418,14 +365,10 @@ fun SettingsScreen(viewModel: MainViewModel) {
         }
 
         item {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = CardColor),
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Library Sync (GitHub)", fontWeight = FontWeight.Bold, color = PrimaryColor)
-                    TextField(
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("Library Sync (GitHub)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    OutlinedTextField(
                         value = inputPat,
                         onValueChange = { inputPat = it },
                         label = { Text("GitHub PAT (gist scope)") },
@@ -433,7 +376,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (!gistId.isNullOrEmpty()) {
-                        Text("Active Gist ID: ${gistId!!.take(8)}...", fontSize = 12.sp, color = MutedTextColor)
+                        Text("Active Gist ID: ${gistId!!.take(8)}...", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -441,14 +384,14 @@ fun SettingsScreen(viewModel: MainViewModel) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (gistId.isNullOrEmpty()) {
-                            Button(
+                            FilledTonalButton(
                                 onClick = { viewModel.createGist(inputPat) },
                                 enabled = inputPat.isNotBlank()
                             ) {
                                 Text("Create Gist")
                             }
                         } else {
-                            Button(onClick = { viewModel.syncLibrary() }) {
+                            FilledTonalButton(onClick = { viewModel.syncLibrary() }) {
                                 Text("Sync Now")
                             }
                         }
@@ -477,56 +420,58 @@ fun BottomPlayer(viewModel: MainViewModel) {
 
     AnimatedVisibility(visible = currentTrack != null) {
         val track = currentTrack ?: return@AnimatedVisibility
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(CardColor)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = 8.dp
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(track.title, fontWeight = FontWeight.Bold, color = TextColor, maxLines = 1)
-                    Text(track.artist, fontSize = 12.sp, color = MutedTextColor, maxLines = 1)
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    IconButton(onClick = { viewModel.playPrevious() }) {
-                        Icon(Icons.Default.SkipPrevious, contentDescription = "Previous", tint = TextColor)
-                    }
-                    IconButton(
-                        onClick = { viewModel.togglePlay() },
-                        modifier = Modifier.background(PrimaryColor, RoundedCornerShape(50))
-                    ) {
-                        Icon(
-                            if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = "Play/Pause",
-                            tint = TextColor
-                        )
-                    }
-                    IconButton(onClick = { viewModel.playNext() }) {
-                        Icon(Icons.Default.SkipNext, contentDescription = "Next", tint = TextColor)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Seek slider progress bar
-            val progress = if (duration > 0) currentTime.toFloat() / duration else 0f
-            LinearProgressIndicator(
-                progress = progress,
-                color = SecondaryColor,
-                trackColor = MutedTextColor.copy(alpha = 0.2f),
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(2.dp)
-            )
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(track.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                        Text(track.artist, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        IconButton(onClick = { viewModel.playPrevious() }) {
+                            Icon(Icons.Default.SkipPrevious, contentDescription = "Previous")
+                        }
+                        FloatingActionButton(
+                            onClick = { viewModel.togglePlay() },
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            elevation = FloatingActionButtonDefaults.elevation(0.dp)
+                        ) {
+                            Icon(
+                                if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                contentDescription = "Play/Pause"
+                            )
+                        }
+                        IconButton(onClick = { viewModel.playNext() }) {
+                            Icon(Icons.Default.SkipNext, contentDescription = "Next")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Seek slider progress bar
+                val progress = if (duration > 0) currentTime.toFloat() / duration else 0f
+                LinearProgressIndicator(
+                    progress = progress,
+                    modifier = Modifier.fillMaxWidth(),
+                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                )
+            }
         }
     }
 }
