@@ -34,20 +34,21 @@ class AuraClient(private val apiKey: String) {
             .post(requestBody)
             .build()
 
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                val errorBody = response.body?.string()
-                throw Exception("API Error ${response.code}: $errorBody")
-            }
+        try {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    val errorBody = response.body?.string()
+                    throw Exception("API Error ${response.code}: $errorBody")
+                }
 
-            val jsonString = response.body?.string() ?: throw Exception("Empty response body")
-            val json = JSONObject(jsonString)
+                val jsonString = response.body?.string() ?: throw Exception("Empty response body")
+                val json = JSONObject(jsonString)
 
-            if (!json.optBoolean("success", false)) {
-                throw Exception(json.optString("error", "Unknown API error"))
-            }
+                if (!json.optBoolean("success", false)) {
+                    throw Exception(json.optString("error", "Unknown API error"))
+                }
 
-            val metadata = json.getJSONObject("metadata")
+                val metadata = json.getJSONObject("metadata")
             
             return Track(
                 id = java.util.UUID.randomUUID().toString(),
@@ -63,6 +64,12 @@ class AuraClient(private val apiKey: String) {
                 genres = metadata.optString("genres", null).takeIf { it.isNotBlank() },
                 apple_music_url = metadata.optString("apple_music_url", null).takeIf { it.isNotBlank() }
             )
+        } catch (e: java.net.UnknownHostException) {
+            throw Exception("You appear to be offline. Please check your internet connection.")
+        } catch (e: java.net.SocketTimeoutException) {
+            throw Exception("The connection timed out. The server might be asleep or unreachable.")
+        } catch (e: Exception) {
+            throw e
         }
     }
 
@@ -81,20 +88,28 @@ class AuraClient(private val apiKey: String) {
             .post(requestBody)
             .build()
 
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                val errorBody = response.body?.string()
-                throw Exception("API Error ${response.code}: $errorBody")
+        try {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    val errorBody = response.body?.string()
+                    throw Exception("API Error ${response.code}: $errorBody")
+                }
+
+                val jsonString = response.body?.string() ?: throw Exception("Empty response body")
+                val json = JSONObject(jsonString)
+
+                if (!json.optBoolean("success", false)) {
+                    throw Exception(json.optString("error", "Unknown API error"))
+                }
+
+                return json.getString("file_id")
             }
-
-            val jsonString = response.body?.string() ?: throw Exception("Empty response body")
-            val json = JSONObject(jsonString)
-
-            if (!json.optBoolean("success", false)) {
-                throw Exception(json.optString("error", "Unknown API error"))
-            }
-
-            return json.getString("file_id")
+        } catch (e: java.net.UnknownHostException) {
+            throw Exception("You appear to be offline. Please check your internet connection.")
+        } catch (e: java.net.SocketTimeoutException) {
+            throw Exception("The connection timed out. The server might be asleep or unreachable.")
+        } catch (e: Exception) {
+            throw e
         }
     }
 }

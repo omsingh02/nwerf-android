@@ -61,9 +61,14 @@ fun NwerfApp(viewModel: MainViewModel) {
     val err by viewModel.errorMessage.collectAsState()
     val hasSeenTutorial by viewModel.settingsStore.hasSeenTutorial.collectAsState(initial = null)
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(err) {
         err?.let {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            snackbarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Short
+            )
             viewModel.clearError()
         }
     }
@@ -72,6 +77,7 @@ fun NwerfApp(viewModel: MainViewModel) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (currentRoute != "tutorial" && currentRoute != "splash") {
                 Column {
