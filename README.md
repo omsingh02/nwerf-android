@@ -26,5 +26,8 @@ An open-source Android music streaming app that leverages **Telegram** for unlim
 * [Telegram Bot API](https://core.telegram.org/bots/api)
 * [ACRCloud](https://www.acrcloud.com/)
 
+## 👩‍💻 Contributing & Development
+If you are interested in contributing, building from source, or understanding the automated release pipeline, please read the [Development Guide](DEVELOPMENT.md).
+
 ## 📝 License
 This project is open-source and available under the MIT License.
