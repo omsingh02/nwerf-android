@@ -321,6 +321,56 @@ fun UploadScreen(viewModel: MainViewModel) {
                 Text("Upload Track", style = MaterialTheme.typography.titleMedium)
             }
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            androidx.compose.material3.Divider(modifier = Modifier.weight(1f))
+            Text("OR", modifier = Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.labelMedium)
+            androidx.compose.material3.Divider(modifier = Modifier.weight(1f))
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        var isRecording by remember { mutableStateOf(false) }
+        var recordedFile by remember { mutableStateOf<java.io.File?>(null) }
+        val recorder = remember { AudioRecorder(context) }
+        val coroutineScope = rememberCoroutineScope()
+
+        Button(
+            onClick = {
+                if (isRecording) {
+                    isRecording = false
+                    recorder.stopRecording()
+                    recordedFile?.let { file ->
+                        viewModel.identifyAndUploadTrack(file)
+                    }
+                } else {
+                    isRecording = true
+                    recordedFile = recorder.startRecording()
+                    Toast.makeText(context, "Listening for 7 seconds...", Toast.LENGTH_SHORT).show()
+                    coroutineScope.launch {
+                        kotlinx.coroutines.delay(7000)
+                        if (isRecording) {
+                            isRecording = false
+                            recorder.stopRecording()
+                            recordedFile?.let { file ->
+                                viewModel.identifyAndUploadTrack(file)
+                            }
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            enabled = !isUploading,
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+        ) {
+            if (isUploading && recordedFile != null && !isRecording) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onTertiary, strokeWidth = 2.dp)
+            } else {
+                Icon(Icons.Default.Mic, contentDescription = "Identify")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(if (isRecording) "Listening..." else "Identify & Sync", style = MaterialTheme.typography.titleMedium)
+            }
+        }
     }
 }
 

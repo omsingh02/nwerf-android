@@ -68,7 +68,14 @@ data class Track(
     val title: String,
     val artist: String,
     val file_id: String,
-    val added_at: Long
+    val added_at: Long,
+    val cover_art: String? = null,
+    val lyrics: String? = null,
+    val album: String? = null,
+    val release_date: String? = null,
+    val shazam_count: Int? = null,
+    val genres: String? = null,
+    val apple_music_url: String? = null
 )
 
 @Dao
@@ -92,7 +99,7 @@ interface TrackDao {
     suspend fun deleteAll()
 }
 
-@Database(entities = [Track::class], version = 1, exportSchema = false)
+@Database(entities = [Track::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun trackDao(): TrackDao
 
@@ -106,7 +113,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "nwerf_db"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

@@ -251,6 +251,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun identifyAndUploadTrack(file: File) {
+        viewModelScope.launch {
+            _isUploading.value = true
+            try {
+                val token = settingsStore.botToken.first() ?: throw Exception("Missing Bot Token")
+                val chatId = settingsStore.chatId.first() ?: throw Exception("Missing Chat ID")
+                val pat = settingsStore.githubPat.first()
+                val gistId = settingsStore.gistId.first()
+
+                // Run network call on IO dispatcher
+                val track = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    val aura = AuraClient("dev_api_key_123")
+                    aura.identifyAndAdd(file, token, chatId)
+                } ?: throw Exception("Identification returned null")
+
+                // Save locally
+                trackDao.insert(track)
+
+                // Sync to GitHub if configured
+                if (!pat.isNullOrEmpty() && !gistId.isNullOrEmpty()) {
+                    val gh = GithubClient(pat)
+                    val updatedTracks = trackDao.getAllTracks()
+                    gh.updateLibraryGist(gistId, updatedTracks)
+                }
+
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Identify & Upload failed"
+            } finally {
+                _isUploading.value = false
+            }
+        }
+    }
+
     fun deleteTrack(track: Track) {
         viewModelScope.launch {
             try {
