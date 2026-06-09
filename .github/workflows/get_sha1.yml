@@ -1,0 +1,20 @@
+name: Get SHA-1
+
+on:
+  workflow_dispatch:
+
+jobs:
+  get-sha1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode Keystore and Get SHA-1
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
+          keytool -list -v -keystore release.keystore -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -alias "${{ secrets.ANDROID_KEY_ALIAS }}" | grep SHA1 > sha1.txt
+          cat sha1.txt
+      - name: Upload SHA-1
+        uses: actions/upload-artifact@v4
+        with:
+          name: sha1-fingerprint
+          path: sha1.txt
