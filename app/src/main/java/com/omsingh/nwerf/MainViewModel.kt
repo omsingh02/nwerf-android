@@ -56,6 +56,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
+    private val _identifiedTracks = MutableStateFlow<List<Track>>(emptyList())
+    val identifiedTracks: StateFlow<List<Track>> = _identifiedTracks.asStateFlow()
+
+    private val _downloadingTrackIds = MutableStateFlow<Set<String>>(emptySet())
+    val downloadingTrackIds: StateFlow<Set<String>> = _downloadingTrackIds.asStateFlow()
+
     init {
         initializePlayer(application)
         startProgressPoller()
@@ -226,12 +232,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             settingsStore.setAutoDownloadContinuous(enabled)
         }
     }
-
-    private val _identifiedTracks = MutableStateFlow<List<Track>>(emptyList())
-    val identifiedTracks: StateFlow<List<Track>> = _identifiedTracks.asStateFlow()
-
-    private val _downloadingTrackIds = MutableStateFlow<Set<String>>(emptySet())
-    val downloadingTrackIds: StateFlow<Set<String>> = _downloadingTrackIds.asStateFlow()
 
     fun clearIdentifiedTracks() {
         _identifiedTracks.value = emptyList()
