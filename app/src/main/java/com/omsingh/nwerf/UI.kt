@@ -903,14 +903,23 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                                 Button(
                                     onClick = { 
                                         haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
-                                        viewModel.downloadIdentifiedTrack(track) 
+                                        if (isDuplicate) {
+                                            val libraryTrack = libraryTracks.find { it.title.equals(track.title, ignoreCase = true) && it.artist.equals(track.artist, ignoreCase = true) }
+                                            if (libraryTrack != null) {
+                                                viewModel.playTrack(libraryTrack)
+                                            }
+                                        } else {
+                                            viewModel.downloadIdentifiedTrack(track) 
+                                        }
                                     },
-                                    enabled = !isDownloading && !isDuplicate
+                                    enabled = !isDownloading
                                 ) {
                                     if (isDownloading) {
                                         CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
                                     } else if (isDuplicate) {
-                                        Text("✓ In Library")
+                                        Icon(Icons.Default.PlayArrow, contentDescription = "Play")
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Play")
                                     } else {
                                         Text("Add to Library")
                                     }

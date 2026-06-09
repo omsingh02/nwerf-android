@@ -59,6 +59,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         initializePlayer(application)
         startProgressPoller()
+        viewModelScope.launch {
+            _identifiedTracks.value = settingsStore.identifyHistory.first()
+        }
     }
 
     private fun initializePlayer(application: Application) {
@@ -239,7 +242,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
 
                 trackDao.insert(track)
-                _identifiedTracks.value = listOf(track) + _identifiedTracks.value
+                val existingList = _identifiedTracks.value.toMutableList()
+                val existingIndex = existingList.indexOfFirst { it.title.equals(track.title, ignoreCase = true) && it.artist.equals(track.artist, ignoreCase = true) }
+                if (existingIndex != -1) {
+                    existingList.removeAt(existingIndex)
+                }
+                existingList.add(0, track)
+                
+                _identifiedTracks.value = existingList
+                settingsStore.saveIdentifyHistory(existingList)
 
                 if (!pat.isNullOrEmpty() && !gistId.isNullOrEmpty()) {
                     val client = GithubClient(pat)
@@ -276,6 +287,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearIdentifiedTracks() {
         _identifiedTracks.value = emptyList()
+        viewModelScope.launch {
+            settingsStore.saveIdentifyHistory(emptyList())
+        }
     }
 
     fun identifyTrack(file: File, autoDownload: Boolean = false) {
@@ -288,7 +302,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     aura.identify(file)
                 } ?: throw Exception("Identification returned null")
 
-                _identifiedTracks.value = listOf(track) + _identifiedTracks.value
+                val existingList = _identifiedTracks.value.toMutableList()
+                val existingIndex = existingList.indexOfFirst { it.title.equals(track.title, ignoreCase = true) && it.artist.equals(track.artist, ignoreCase = true) }
+                if (existingIndex != -1) {
+                    val existingTrack = existingList.removeAt(existingIndex)
+                    existingList.add(0, existingTrack.copy(added_at = System.currentTimeMillis()))
+                } else {
+                    existingList.add(0, track)
+                }
+
+                _identifiedTracks.value = existingList
+                settingsStore.saveIdentifyHistory(existingList)
+                
                 if (autoDownload) {
                     downloadIdentifiedTrack(track)
                 }

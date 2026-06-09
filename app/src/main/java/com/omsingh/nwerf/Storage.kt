@@ -18,6 +18,8 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 // Datastore for Credentials
 val Context.dataStore by preferencesDataStore(name = "nwerf_settings")
@@ -30,6 +32,7 @@ class SettingsStore(private val context: Context) {
         val GIST_ID = stringPreferencesKey("gist_id")
         val HAS_SEEN_TUTORIAL = booleanPreferencesKey("has_seen_tutorial")
         val AUTO_DOWNLOAD_CONTINUOUS = booleanPreferencesKey("auto_download_continuous")
+        val IDENTIFY_HISTORY = stringPreferencesKey("identify_history")
     }
 
     val botToken: Flow<String?> = context.dataStore.data.map { it[BOT_TOKEN] }
@@ -38,6 +41,14 @@ class SettingsStore(private val context: Context) {
     val gistId: Flow<String?> = context.dataStore.data.map { it[GIST_ID] }
     val hasSeenTutorial: Flow<Boolean> = context.dataStore.data.map { it[HAS_SEEN_TUTORIAL] ?: false }
     val autoDownloadContinuous: Flow<Boolean> = context.dataStore.data.map { it[AUTO_DOWNLOAD_CONTINUOUS] ?: false }
+    val identifyHistory: Flow<List<Track>> = context.dataStore.data.map { pref ->
+        val jsonString = pref[IDENTIFY_HISTORY] ?: "[]"
+        try {
+            Json.decodeFromString<List<Track>>(jsonString)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
     suspend fun saveTelegramSettings(token: String, chat: String) {
         context.dataStore.edit {
@@ -55,6 +66,15 @@ class SettingsStore(private val context: Context) {
 
     suspend fun setAutoDownloadContinuous(enabled: Boolean) {
         context.dataStore.edit { it[AUTO_DOWNLOAD_CONTINUOUS] = enabled }
+    }
+
+    suspend fun saveIdentifyHistory(history: List<Track>) {
+        try {
+            val jsonString = Json.encodeToString(history)
+            context.dataStore.edit { it[IDENTIFY_HISTORY] = jsonString }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     suspend fun clear() {
