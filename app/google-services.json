@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "980408244825",
+    "project_id": "nwerf-app",
+    "storage_bucket": "nwerf-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:980408244825:android:57385c7bba56b8d3b5af48",
+        "android_client_info": {
+          "package_name": "com.omsingh.nwerf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBN1jJ5rdLuuBmb0IxgF4fRDM6eBsh97rk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

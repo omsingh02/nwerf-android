@@ -28,8 +28,6 @@ class SettingsStore(private val context: Context) {
     companion object {
         val BOT_TOKEN = stringPreferencesKey("bot_token")
         val CHAT_ID = stringPreferencesKey("chat_id")
-        val GITHUB_PAT = stringPreferencesKey("github_pat")
-        val GIST_ID = stringPreferencesKey("gist_id")
         val HAS_SEEN_TUTORIAL = booleanPreferencesKey("has_seen_tutorial")
         val AUTO_DOWNLOAD_CONTINUOUS = booleanPreferencesKey("auto_download_continuous")
         val IDENTIFY_HISTORY = stringPreferencesKey("identify_history")
@@ -37,8 +35,6 @@ class SettingsStore(private val context: Context) {
 
     val botToken: Flow<String?> = context.dataStore.data.map { it[BOT_TOKEN] }
     val chatId: Flow<String?> = context.dataStore.data.map { it[CHAT_ID] }
-    val githubPat: Flow<String?> = context.dataStore.data.map { it[GITHUB_PAT] }
-    val gistId: Flow<String?> = context.dataStore.data.map { it[GIST_ID] }
     val hasSeenTutorial: Flow<Boolean> = context.dataStore.data.map { it[HAS_SEEN_TUTORIAL] ?: false }
     val autoDownloadContinuous: Flow<Boolean> = context.dataStore.data.map { it[AUTO_DOWNLOAD_CONTINUOUS] ?: false }
     val identifyHistory: Flow<List<Track>> = context.dataStore.data.map { pref ->
@@ -90,11 +86,11 @@ class SettingsStore(private val context: Context) {
 @Serializable
 @Entity(tableName = "tracks")
 data class Track(
-    @PrimaryKey val id: String,
-    val title: String,
-    val artist: String,
-    val file_id: String,
-    val added_at: Long,
+    @PrimaryKey val id: String = "",
+    val title: String = "",
+    val artist: String = "",
+    val file_id: String = "",
+    val added_at: Long = 0L,
     val cover_art: String? = null,
     val lyrics: String? = null,
     val album: String? = null,

@@ -95,7 +95,7 @@ fun NwerfApp(viewModel: MainViewModel) {
             composable("splash") {
                 LaunchedEffect(hasSeenTutorial) {
                     if (hasSeenTutorial != null) {
-                        val dest = if (hasSeenTutorial == true) "library" else "tutorial"
+                        val dest = if (hasSeenTutorial == true) "library" else "setup_wizard"
                         navController.navigate(dest) {
                             popUpTo("splash") { inclusive = true }
                         }
@@ -105,7 +105,7 @@ fun NwerfApp(viewModel: MainViewModel) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
-            composable("tutorial") { TutorialScreen(viewModel, navController) }
+            composable("setup_wizard") { SetupWizardScreen(viewModel, navController) }
             composable("library") { LibraryScreen(viewModel) }
             composable(
                 route = "identify",
@@ -432,49 +432,16 @@ fun SettingsScreen(viewModel: MainViewModel) {
             }
         }
 
+                }
+            }
+        }
+
         item {
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("Library Sync (GitHub)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                    OutlinedTextField(
-                        value = inputPat,
-                        onValueChange = { inputPat = it },
-                        label = { Text("GitHub PAT (gist scope)") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    if (!gistId.isNullOrEmpty()) {
-                        Text("Active Gist ID: ${gistId!!.take(8)}...", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (gistId.isNullOrEmpty()) {
-                            FilledTonalButton(
-                                onClick = { viewModel.createGist(inputPat) },
-                                enabled = inputPat.isNotBlank()
-                            ) {
-                                Text("Create Gist")
-                            }
-                        } else {
-                            FilledTonalButton(onClick = { viewModel.syncLibrary() }) {
-                                Text("Sync Now")
-                            }
-                        }
-                        Button(
-                            onClick = {
-                                scope.launch {
-                                    viewModel.settingsStore.saveGistSettings(inputPat, gistId ?: "")
-                                }
-                            }
-                        ) {
-                            Text("Save PAT")
-                        }
-                    }
+                    Text("Cloud Sync", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    Text("Library sync is now automatically handled via Firebase Cloud Firestore.", style = MaterialTheme.typography.bodyMedium)
                 }
-            }
             }
         }
 
@@ -521,65 +488,129 @@ fun SettingsScreen(viewModel: MainViewModel) {
 }
 
 @Composable
-fun TutorialScreen(viewModel: MainViewModel, navController: androidx.navigation.NavHostController) {
+fun SetupWizardScreen(viewModel: MainViewModel, navController: androidx.navigation.NavHostController) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var currentStep by remember { mutableStateOf(1) }
     
+    var botToken by remember { mutableStateOf("") }
+    var chatId by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            imageVector = Icons.Default.MusicNote,
-            contentDescription = "Welcome",
-            modifier = Modifier.size(80.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Text(
-            text = "Welcome to nwerf!",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = "A private, self-hosted music streaming app powered by Telegram and GitHub Gists.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-        
         Spacer(modifier = Modifier.height(32.dp))
         
-        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Setup Instructions", style = MaterialTheme.typography.titleMedium)
-                Text("1. Create a Telegram Bot and Channel.", style = MaterialTheme.typography.bodyMedium)
-                Text("2. Get a GitHub PAT with 'gist' scope.", style = MaterialTheme.typography.bodyMedium)
-                Text("3. Enter them in the Settings tab to sync your music library across devices.", style = MaterialTheme.typography.bodyMedium)
+        Text("Welcome to Nwerf", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary)
+        Text("Let's set up your private music engine in 3 easy steps.", style = MaterialTheme.typography.bodyLarge, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        
+        AnimatedVisibility(visible = currentStep == 1) {
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Step 1: The Bot", style = MaterialTheme.typography.titleLarge)
+                    Text("Nwerf uses a Telegram Bot to download and stream music for free.", textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    
+                    FilledTonalButton(onClick = {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=botfather"))
+                        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                        try { context.startActivity(intent) } catch (e: Exception) {}
+                    }) {
+                        Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Open BotFather")
+                    }
+                    
+                    OutlinedTextField(
+                        value = botToken,
+                        onValueChange = { botToken = it },
+                        label = { Text("Paste Bot Token Here") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                    
+                    Button(
+                        onClick = { currentStep = 2 },
+                        enabled = botToken.isNotBlank(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Next Step")
+                    }
+                }
             }
         }
         
-        Spacer(modifier = Modifier.height(48.dp))
-        
-        Button(
-            onClick = {
-                scope.launch {
-                    viewModel.settingsStore.setTutorialSeen()
-                    navController.navigate("library") {
-                        popUpTo("tutorial") { inclusive = true }
+        AnimatedVisibility(visible = currentStep == 2) {
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Step 2: The Vault", style = MaterialTheme.typography.titleLarge)
+                    Text("Create a Private Channel in Telegram and add your bot as an admin. Then, forward any message from it to RawDataBot to get its ID.", textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    
+                    FilledTonalButton(onClick = {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=RawDataBot"))
+                        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                        try { context.startActivity(intent) } catch (e: Exception) {}
+                    }) {
+                        Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Open RawDataBot")
+                    }
+                    
+                    OutlinedTextField(
+                        value = chatId,
+                        onValueChange = { chatId = it },
+                        label = { Text("Paste Chat ID Here (e.g., -100...)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                    
+                    Button(
+                        onClick = { currentStep = 3 },
+                        enabled = chatId.isNotBlank(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Next Step")
                     }
                 }
-            },
-            modifier = Modifier.fillMaxWidth().height(56.dp)
-        ) {
-            Text("Get Started", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+        
+        AnimatedVisibility(visible = currentStep == 3) {
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Step 3: Cloud Sync", style = MaterialTheme.typography.titleLarge)
+                    Text("Sign in with Google to automatically sync your library across all your devices using Firebase.", textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                // Save Telegram details
+                                viewModel.settingsStore.saveTelegramSettings(botToken, chatId)
+                                // Trigger anonymous auth for now since Google Sign-in requires SHA-1 config in Firebase console
+                                com.google.firebase.auth.FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        scope.launch {
+                                            viewModel.settingsStore.setTutorialSeen()
+                                            navController.navigate("library") { popUpTo("setup_wizard") { inclusive = true } }
+                                        }
+                                    } else {
+                                        Toast.makeText(context, "Auth Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().height(56.dp)
+                    ) {
+                        Icon(Icons.Default.CloudSync, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Complete Setup")
+                    }
+                }
+            }
         }
     }
 }

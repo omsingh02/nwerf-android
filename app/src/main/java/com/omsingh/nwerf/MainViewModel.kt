@@ -23,9 +23,9 @@ import java.util.UUID
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val db = AppDatabase.getDatabase(application)
-    private val trackDao = db.trackDao()
+    private val trackDao = AppDatabase.getDatabase(application).trackDao()
     val settingsStore = SettingsStore(application)
+    private val firebaseSync = FirebaseSyncClient()
 
     // Tracks List Flow
     val tracks: StateFlow<List<Track>> = trackDao.getAllTracksFlow()
@@ -252,14 +252,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _identifiedTracks.value = existingList
                 settingsStore.saveIdentifyHistory(existingList)
 
-                if (!pat.isNullOrEmpty() && !gistId.isNullOrEmpty()) {
-                    val client = GithubClient(pat)
-                    val allTracks = trackDao.getAllTracks()
-                    client.updateLibraryGist(gistId, allTracks)
-                }
+                // Sync to Firebase Cloud
+                firebaseSync.syncTrackToCloud(track)
 
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Upload failed"
+                _errorMessage.value = e.message ?: "Failed to upload to Library"
             } finally {
                 _isUploading.value = false
                 try {
@@ -338,8 +335,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val token = settingsStore.botToken.first() ?: throw Exception("Missing Bot Token")
                 val chatId = settingsStore.chatId.first() ?: throw Exception("Missing Chat ID")
-                val pat = settingsStore.githubPat.first()
-                val gistId = settingsStore.gistId.first()
 
                 // Run network call on IO dispatcher
                 val fileId = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -352,13 +347,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // Save locally
                 trackDao.insert(finalTrack)
 
-                // Sync to GitHub if configured
-                if (!pat.isNullOrEmpty() && !gistId.isNullOrEmpty()) {
-                    val gh = GithubClient(pat)
-                    val updatedTracks = trackDao.getAllTracks()
-                    gh.updateLibraryGist(gistId, updatedTracks)
-                }
-                
                 _identifiedTracks.value = _identifiedTracks.value.filter { it.id != track.id }
 
             } catch (e: Exception) {
@@ -369,20 +357,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun deleteTrack(track: Track) {
+    fun syncLibrary() {
         viewModelScope.launch {
             try {
-                trackDao.delete(track)
-                val pat = settingsStore.githubPat.first()
-                val gistId = settingsStore.gistId.first()
-                if (!pat.isNullOrEmpty() && !gistId.isNullOrEmpty()) {
-                    val gh = GithubClient(pat)
-                    val updatedTracks = trackDao.getAllTracks()
-                    gh.updateLibraryGist(gistId, updatedTracks)
+                val cloudTracks = firebaseSync.fetchAllCloudTracks()
+                if (cloudTracks.isNotEmpty()) {
+                    trackDao.insertAll(cloudTracks)
                 }
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Failed to delete track"
+                _errorMessage.value = "Failed to sync library: ${e.message}"
             }
         }
     }
+
+    fun deleteTrack(track: Track) {
+        viewModelScope.launch {
+            trackDao.delete(track)
+            firebaseSync.deleteTrackFromCloud(track.id)
+        }
+    }
+
+    override fun onCleared() {}
 }
