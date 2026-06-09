@@ -251,11 +251,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val _identifiedTrack = MutableStateFlow<Track?>(null)
-    val identifiedTrack: StateFlow<Track?> = _identifiedTrack.asStateFlow()
+    private val _identifiedTracks = MutableStateFlow<List<Track>>(emptyList())
+    val identifiedTracks: StateFlow<List<Track>> = _identifiedTracks.asStateFlow()
 
-    fun clearIdentifiedTrack() {
-        _identifiedTrack.value = null
+    private val _downloadingTrackIds = MutableStateFlow<Set<String>>(emptySet())
+    val downloadingTrackIds: StateFlow<Set<String>> = _downloadingTrackIds.asStateFlow()
+
+    fun clearIdentifiedTracks() {
+        _identifiedTracks.value = emptyList()
     }
 
     fun identifyTrack(file: File) {
@@ -268,7 +271,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     aura.identify(file)
                 } ?: throw Exception("Identification returned null")
 
-                _identifiedTrack.value = track
+                _identifiedTracks.value = listOf(track) + _identifiedTracks.value
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Identify failed"
             } finally {
@@ -277,10 +280,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun downloadIdentifiedTrack() {
-        val track = _identifiedTrack.value ?: return
+    fun downloadIdentifiedTrack(track: Track) {
         viewModelScope.launch {
-            _isUploading.value = true
+            _downloadingTrackIds.value = _downloadingTrackIds.value + track.id
             try {
                 val token = settingsStore.botToken.first() ?: throw Exception("Missing Bot Token")
                 val chatId = settingsStore.chatId.first() ?: throw Exception("Missing Chat ID")
@@ -305,12 +307,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     gh.updateLibraryGist(gistId, updatedTracks)
                 }
                 
-                _identifiedTrack.value = null // Clear on success
+                _identifiedTracks.value = _identifiedTracks.value.filter { it.id != track.id }
 
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Download failed"
             } finally {
-                _isUploading.value = false
+                _downloadingTrackIds.value = _downloadingTrackIds.value - track.id
             }
         }
     }
