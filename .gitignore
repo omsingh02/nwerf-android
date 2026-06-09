@@ -11,3 +11,8 @@
 /app/build
 *.iml
 .DS_Store
+
+# Ignore build logs and APKs
+*.log
+*.apk
+build-log*.txt

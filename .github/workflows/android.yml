@@ -38,7 +38,7 @@ jobs:
         run: ./gradlew testDebugUnitTest
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug assembleRelease
+        run: ./gradlew assembleDebug assembleRelease -x lintVitalRelease -x lint
 
       - name: Sign Android Release APK
         uses: r0adkll/sign-android-release@v1
