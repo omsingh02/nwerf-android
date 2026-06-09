@@ -209,7 +209,7 @@ fun LibraryScreen(viewModel: MainViewModel) {
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(filteredTracks) { track ->
+                items(filteredTracks, key = { it.id }) { track ->
                     val isCurrent = currentTrack?.id == track.id
                     ElevatedCard(
                         onClick = { viewModel.playTrack(track) },
@@ -775,7 +775,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(identifiedTracks) { track ->
+                items(identifiedTracks, key = { it.id }) { track ->
                     val isDownloading = downloadingTrackIds.contains(track.id)
                     val isDuplicate = libraryTracks.any { it.title.equals(track.title, ignoreCase = true) }
                     ElevatedCard(modifier = Modifier.fillMaxWidth()) {

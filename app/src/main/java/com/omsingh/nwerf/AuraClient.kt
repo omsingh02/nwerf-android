@@ -10,11 +10,13 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 class AuraClient(private val apiKey: String) {
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(120, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .build()
+    companion object {
+        private val client = OkHttpClient.Builder()
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .build()
+    }
 
     // Replace this with the actual Hugging Face Space URL
     private val apiUrl = "https://ghutck-aura-api.hf.space"
