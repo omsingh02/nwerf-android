@@ -43,17 +43,6 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "34.0.0"
 
-      - name: Extract SHA-1
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > release.keystore
-          keytool -list -v -keystore release.keystore -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" -alias "${{ secrets.ANDROID_KEY_ALIAS }}" > cert_info.txt || true
-          grep "SHA1:" cert_info.txt > sha1.txt || true
-
-      - name: Upload SHA-1 Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sha1-fingerprint
-          path: sha1.txt
 
       - name: Rename APKs for release
         if: startsWith(github.ref, 'refs/tags/v')
