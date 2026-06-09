@@ -64,6 +64,7 @@ class AuraClient(private val apiKey: String) {
                 genres = metadata.optString("genres", null).takeIf { it.isNotBlank() },
                 apple_music_url = metadata.optString("apple_music_url", null).takeIf { it.isNotBlank() }
             )
+            }
         } catch (e: java.net.UnknownHostException) {
             throw Exception("You appear to be offline. Please check your internet connection.")
         } catch (e: java.net.SocketTimeoutException) {
