@@ -243,7 +243,6 @@ fun UploadScreen(viewModel: MainViewModel) {
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedFileName by remember { mutableStateOf("") }
     val isUploading by viewModel.isUploading.collectAsState()
-    val identifiedTrack by viewModel.identifiedTrack.collectAsState()
 
     val filePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
