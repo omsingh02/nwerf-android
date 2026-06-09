@@ -252,6 +252,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _errorMessage.value = e.message ?: "Upload failed"
             } finally {
                 _isUploading.value = false
+                try {
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }
@@ -281,6 +288,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _errorMessage.value = e.message ?: "Identify failed"
             } finally {
                 _isUploading.value = false
+                try {
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
     }
