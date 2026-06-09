@@ -607,6 +607,28 @@ fun IdentifyScreen(viewModel: MainViewModel) {
     val recorder = remember { AudioRecorder(context) }
     val coroutineScope = rememberCoroutineScope()
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            isRecording = true
+            recordedFile = recorder.startRecording()
+            Toast.makeText(context, "Listening for 7 seconds...", Toast.LENGTH_SHORT).show()
+            coroutineScope.launch {
+                kotlinx.coroutines.delay(7000)
+                if (isRecording) {
+                    isRecording = false
+                    recorder.stopRecording()
+                    recordedFile?.let { file ->
+                        viewModel.identifyTrack(file)
+                    }
+                }
+            }
+        } else {
+            Toast.makeText(context, "Microphone permission is required to identify songs", Toast.LENGTH_LONG).show()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -629,18 +651,26 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                         viewModel.identifyTrack(file)
                     }
                 } else {
-                    isRecording = true
-                    recordedFile = recorder.startRecording()
-                    Toast.makeText(context, "Listening for 7 seconds...", Toast.LENGTH_SHORT).show()
-                    coroutineScope.launch {
-                        kotlinx.coroutines.delay(7000)
-                        if (isRecording) {
-                            isRecording = false
-                            recorder.stopRecording()
-                            recordedFile?.let { file ->
-                                viewModel.identifyTrack(file)
+                    val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
+                        context, android.Manifest.permission.RECORD_AUDIO
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+                    if (hasPermission) {
+                        isRecording = true
+                        recordedFile = recorder.startRecording()
+                        Toast.makeText(context, "Listening for 7 seconds...", Toast.LENGTH_SHORT).show()
+                        coroutineScope.launch {
+                            kotlinx.coroutines.delay(7000)
+                            if (isRecording) {
+                                isRecording = false
+                                recorder.stopRecording()
+                                recordedFile?.let { file ->
+                                    viewModel.identifyTrack(file)
+                                }
                             }
                         }
+                    } else {
+                        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                     }
                 }
             },
