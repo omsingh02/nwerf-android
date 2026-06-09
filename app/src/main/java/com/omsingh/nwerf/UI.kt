@@ -341,7 +341,7 @@ fun UploadScreen(viewModel: MainViewModel) {
             onClick = {
                 val uri = selectedFileUri
                 if (uri != null && title.isNotBlank() && artist.isNotBlank()) {
-                    val file = getFileFromUri(context, uri)
+                    val file = getFileFromContentUri(context, uri)
                     viewModel.uploadTrack(file, title, artist)
                     selectedFileUri = null
                     title = ""
@@ -620,8 +620,30 @@ fun BottomPlayer(viewModel: MainViewModel) {
 }
 
 // Utility function to resolve Uri content stream into a temp file.
-private fun getFileFromUri(context: Context, uri: Uri): File {
-    val tempFile = File(context.cacheDir, "temp_upload.mp3")
+private fun getFileName(context: android.content.Context, uri: Uri): String {
+    var result: String? = null
+    if (uri.scheme == "content") {
+        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                if (index != -1) {
+                    result = cursor.getString(index)
+                }
+            }
+        }
+    }
+    if (result == null) {
+        result = uri.path
+        val cut = result?.lastIndexOf('/')
+        if (cut != null && cut != -1) {
+            result = result?.substring(cut + 1)
+        }
+    }
+    return result ?: "audio.mp3"
+}
+
+fun getFileFromContentUri(context: android.content.Context, uri: Uri): java.io.File {
+    val tempFile = java.io.File(context.cacheDir, "temp_upload.mp3")
     context.contentResolver.openInputStream(uri)?.use { input ->
         tempFile.outputStream().use { output ->
             input.copyTo(output)
