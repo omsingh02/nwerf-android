@@ -56,6 +56,7 @@ fun NwerfApp(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val err by viewModel.errorMessage.collectAsState()
+    val hasSeenTutorial by viewModel.settingsStore.hasSeenTutorial.collectAsState(initial = null)
 
     LaunchedEffect(err) {
         err?.let {
@@ -64,19 +65,38 @@ fun NwerfApp(viewModel: MainViewModel) {
         }
     }
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
     Scaffold(
         bottomBar = {
-            Column {
-                BottomPlayer(viewModel)
-                BottomNavigationBar(navController)
+            if (currentRoute != "tutorial" && currentRoute != "splash") {
+                Column {
+                    BottomPlayer(viewModel)
+                    BottomNavigationBar(navController)
+                }
             }
         }
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "library",
+            startDestination = "splash",
             modifier = Modifier.padding(paddingValues)
         ) {
+            composable("splash") {
+                LaunchedEffect(hasSeenTutorial) {
+                    if (hasSeenTutorial != null) {
+                        val dest = if (hasSeenTutorial == true) "library" else "tutorial"
+                        navController.navigate(dest) {
+                            popUpTo("splash") { inclusive = true }
+                        }
+                    }
+                }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+            }
+            composable("tutorial") { TutorialScreen(viewModel, navController) }
             composable("library") { LibraryScreen(viewModel) }
             composable("upload") { UploadScreen(viewModel) }
             composable("settings") { SettingsScreen(viewModel) }
@@ -407,6 +427,88 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     }
                 }
             }
+        }
+
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "Developed by Omsingh02",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "nwerf v0.1.0",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TutorialScreen(viewModel: MainViewModel, navController: androidx.navigation.NavHostController) {
+    val scope = rememberCoroutineScope()
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.MusicNote,
+            contentDescription = "Welcome",
+            modifier = Modifier.size(80.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            text = "Welcome to nwerf!",
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Text(
+            text = "A private, self-hosted music streaming app powered by Telegram and GitHub Gists.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Setup Instructions", style = MaterialTheme.typography.titleMedium)
+                Text("1. Create a Telegram Bot and Channel.", style = MaterialTheme.typography.bodyMedium)
+                Text("2. Get a GitHub PAT with 'gist' scope.", style = MaterialTheme.typography.bodyMedium)
+                Text("3. Enter them in the Settings tab to sync your music library across devices.", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(48.dp))
+        
+        Button(
+            onClick = {
+                scope.launch {
+                    viewModel.settingsStore.setTutorialSeen()
+                    navController.navigate("library") {
+                        popUpTo("tutorial") { inclusive = true }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("Get Started", style = MaterialTheme.typography.titleMedium)
         }
     }
 }

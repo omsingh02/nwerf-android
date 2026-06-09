@@ -1,6 +1,7 @@
 package com.omsingh.nwerf
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -27,12 +28,14 @@ class SettingsStore(private val context: Context) {
         val CHAT_ID = stringPreferencesKey("chat_id")
         val GITHUB_PAT = stringPreferencesKey("github_pat")
         val GIST_ID = stringPreferencesKey("gist_id")
+        val HAS_SEEN_TUTORIAL = booleanPreferencesKey("has_seen_tutorial")
     }
 
     val botToken: Flow<String?> = context.dataStore.data.map { it[BOT_TOKEN] }
     val chatId: Flow<String?> = context.dataStore.data.map { it[CHAT_ID] }
     val githubPat: Flow<String?> = context.dataStore.data.map { it[GITHUB_PAT] }
     val gistId: Flow<String?> = context.dataStore.data.map { it[GIST_ID] }
+    val hasSeenTutorial: Flow<Boolean> = context.dataStore.data.map { it[HAS_SEEN_TUTORIAL] ?: false }
 
     suspend fun saveTelegramSettings(token: String, chat: String) {
         context.dataStore.edit {
@@ -50,6 +53,10 @@ class SettingsStore(private val context: Context) {
 
     suspend fun clear() {
         context.dataStore.edit { it.clear() }
+    }
+
+    suspend fun setTutorialSeen() {
+        context.dataStore.edit { it[HAS_SEEN_TUTORIAL] = true }
     }
 }
 
