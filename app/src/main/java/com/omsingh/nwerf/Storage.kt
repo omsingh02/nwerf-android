@@ -29,6 +29,7 @@ class SettingsStore(private val context: Context) {
         val GITHUB_PAT = stringPreferencesKey("github_pat")
         val GIST_ID = stringPreferencesKey("gist_id")
         val HAS_SEEN_TUTORIAL = booleanPreferencesKey("has_seen_tutorial")
+        val AUTO_DOWNLOAD_CONTINUOUS = booleanPreferencesKey("auto_download_continuous")
     }
 
     val botToken: Flow<String?> = context.dataStore.data.map { it[BOT_TOKEN] }
@@ -36,6 +37,7 @@ class SettingsStore(private val context: Context) {
     val githubPat: Flow<String?> = context.dataStore.data.map { it[GITHUB_PAT] }
     val gistId: Flow<String?> = context.dataStore.data.map { it[GIST_ID] }
     val hasSeenTutorial: Flow<Boolean> = context.dataStore.data.map { it[HAS_SEEN_TUTORIAL] ?: false }
+    val autoDownloadContinuous: Flow<Boolean> = context.dataStore.data.map { it[AUTO_DOWNLOAD_CONTINUOUS] ?: false }
 
     suspend fun saveTelegramSettings(token: String, chat: String) {
         context.dataStore.edit {
@@ -49,6 +51,10 @@ class SettingsStore(private val context: Context) {
             it[GITHUB_PAT] = pat
             it[GIST_ID] = gist
         }
+    }
+
+    suspend fun setAutoDownloadContinuous(enabled: Boolean) {
+        context.dataStore.edit { it[AUTO_DOWNLOAD_CONTINUOUS] = enabled }
     }
 
     suspend fun clear() {

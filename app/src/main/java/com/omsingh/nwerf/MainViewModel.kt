@@ -230,7 +230,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val tg = TelegramClient(token, chatId)
                 val fileId = tg.uploadAudio(file, title, artist)
 
-                val newTrack = Track(
+                val track = Track(
                     id = UUID.randomUUID().toString(),
                     title = title,
                     artist = artist,
@@ -238,14 +238,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     added_at = System.currentTimeMillis()
                 )
 
-                // Save locally
-                trackDao.insert(newTrack)
+                trackDao.insert(track)
+                _identifiedTracks.value = listOf(track) + _identifiedTracks.value
 
-                // Sync to GitHub if configured
                 if (!pat.isNullOrEmpty() && !gistId.isNullOrEmpty()) {
-                    val gh = GithubClient(pat)
-                    val updatedTracks = trackDao.getAllTracks()
-                    gh.updateLibraryGist(gistId, updatedTracks)
+                    val client = GithubClient(pat)
+                    val allTracks = trackDao.getAllTracks()
+                    client.updateLibraryGist(gistId, allTracks)
                 }
 
             } catch (e: Exception) {
@@ -263,6 +262,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setAutoDownloadContinuous(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsStore.setAutoDownloadContinuous(enabled)
+        }
+    }
+
     private val _identifiedTracks = MutableStateFlow<List<Track>>(emptyList())
     val identifiedTracks: StateFlow<List<Track>> = _identifiedTracks.asStateFlow()
 
@@ -273,7 +278,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _identifiedTracks.value = emptyList()
     }
 
-    fun identifyTrack(file: File) {
+    fun identifyTrack(file: File, autoDownload: Boolean = false) {
         viewModelScope.launch {
             _isUploading.value = true
             try {
@@ -284,6 +289,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 } ?: throw Exception("Identification returned null")
 
                 _identifiedTracks.value = listOf(track) + _identifiedTracks.value
+                if (autoDownload) {
+                    downloadIdentifiedTrack(track)
+                }
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Identify failed"
             } finally {

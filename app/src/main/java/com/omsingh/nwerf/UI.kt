@@ -389,11 +389,12 @@ fun SettingsScreen(viewModel: MainViewModel) {
         inputChat = chatId ?: ""
         inputPat = githubPat ?: ""
     }
+    val autoDownloadContinuous by viewModel.settingsStore.autoDownloadContinuous.collectAsState(initial = false)
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
@@ -471,6 +472,29 @@ fun SettingsScreen(viewModel: MainViewModel) {
                         ) {
                             Text("Save PAT")
                         }
+                    }
+                }
+            }
+            }
+        }
+
+        item {
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("App Preferences", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Continuous Auto-Download", style = MaterialTheme.typography.bodyLarge)
+                            Text("Automatically add songs to your library when Continuous Mode is active", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        androidx.compose.material3.Switch(
+                            checked = autoDownloadContinuous,
+                            onCheckedChange = { viewModel.setAutoDownloadContinuous(it) }
+                        )
                     }
                 }
             }
@@ -667,6 +691,8 @@ fun IdentifyScreen(viewModel: MainViewModel) {
     val libraryTracks by viewModel.tracks.collectAsState()
 
     var isRecording by remember { mutableStateOf(false) }
+    var isContinuous by remember { mutableStateOf(false) }
+    val autoDownloadContinuous by viewModel.settingsStore.autoDownloadContinuous.collectAsState(initial = false)
     var recordingTimeLeft by remember { mutableStateOf(7) }
     var recordedFile by remember { mutableStateOf<java.io.File?>(null) }
     val recorder = remember { AudioRecorder(context) }
@@ -685,9 +711,34 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                 isRecording = false
                 recorder.stopRecording()
                 recordedFile?.let { file ->
-                    viewModel.identifyTrack(file)
+                    viewModel.identifyTrack(file, autoDownload = isContinuous && autoDownloadContinuous)
                     haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                 }
+            }
+        }
+    }
+
+    val activity = context as? android.app.Activity
+    androidx.compose.runtime.DisposableEffect(isContinuous) {
+        if (isContinuous) {
+            activity?.window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        onDispose {
+            activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+
+    // Auto-looping logic for continuous mode
+    LaunchedEffect(isContinuous, isUploading) {
+        // Wait a tiny bit to avoid extreme spamming if things fail instantly
+        if (isContinuous && !isUploading && !isRecording) {
+            kotlinx.coroutines.delay(1000)
+            if (isContinuous) { // Check again after delay
+                isRecording = true
+                recordedFile = recorder.startRecording()
+                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
             }
         }
     }
@@ -700,6 +751,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
             recordedFile = recorder.startRecording()
             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
         } else {
+            isContinuous = false
             Toast.makeText(context, "Microphone permission is required to identify songs", Toast.LENGTH_LONG).show()
         }
     }
@@ -723,7 +775,38 @@ fun IdentifyScreen(viewModel: MainViewModel) {
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
         
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            Text("Continuous Mode", style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.width(16.dp))
+            androidx.compose.material3.Switch(
+                checked = isContinuous,
+                onCheckedChange = { 
+                    isContinuous = it 
+                    if (it && !isRecording) {
+                        val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
+                            context, android.Manifest.permission.RECORD_AUDIO
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                        if (hasPermission) {
+                            isRecording = true
+                            recordedFile = recorder.startRecording()
+                            haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        } else {
+                            permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                        }
+                    } else if (!it && isRecording) {
+                        isRecording = false
+                        recorder.stopRecording()
+                    }
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
@@ -735,7 +818,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                         Toast.makeText(context, "Recording aborted", Toast.LENGTH_SHORT).show()
                     } else {
                         recordedFile?.let { file ->
-                            viewModel.identifyTrack(file)
+                            viewModel.identifyTrack(file, autoDownload = isContinuous && autoDownloadContinuous)
                             haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
                         }
                     }
@@ -754,7 +837,7 @@ fun IdentifyScreen(viewModel: MainViewModel) {
                 }
             },
             modifier = Modifier.fillMaxWidth().height(64.dp),
-            enabled = !isUploading,
+            enabled = !isUploading && !isContinuous,
             colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
         ) {
             if (isUploading && recordedFile != null && !isRecording) {
@@ -762,7 +845,10 @@ fun IdentifyScreen(viewModel: MainViewModel) {
             } else {
                 Icon(Icons.Default.Mic, contentDescription = "Identify")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(if (isRecording) "Listening... ${recordingTimeLeft}s" else "Identify Song", style = MaterialTheme.typography.titleMedium)
+                val btnText = if (isContinuous) "Listening Continuously..." 
+                              else if (isRecording) "Listening... ${recordingTimeLeft}s" 
+                              else "Identify Song"
+                Text(btnText, style = MaterialTheme.typography.titleMedium)
             }
         }
 
