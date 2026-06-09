@@ -432,10 +432,6 @@ fun SettingsScreen(viewModel: MainViewModel) {
             }
         }
 
-                }
-            }
-        }
-
         item {
             ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -590,15 +586,57 @@ fun SetupWizardScreen(viewModel: MainViewModel, navController: androidx.navigati
                             scope.launch {
                                 // Save Telegram details
                                 viewModel.settingsStore.saveTelegramSettings(botToken, chatId)
-                                // Trigger anonymous auth for now since Google Sign-in requires SHA-1 config in Firebase console
-                                com.google.firebase.auth.FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        scope.launch {
-                                            viewModel.settingsStore.setTutorialSeen()
-                                            navController.navigate("library") { popUpTo("setup_wizard") { inclusive = true } }
+                                // Launch Google Sign-In via Credential Manager
+                                scope.launch {
+                                    try {
+                                        val credentialManager = androidx.credentials.CredentialManager.create(context)
+                                        val googleIdOption = com.google.android.libraries.identity.googleid.GetGoogleIdOption.Builder()
+                                            .setFilterByAuthorizedAccounts(false)
+                                            .setServerClientId(context.getString(R.string.default_web_client_id))
+                                            .setAutoSelectEnabled(true)
+                                            .build()
+
+                                        val request = androidx.credentials.GetCredentialRequest.Builder()
+                                            .addCredentialOption(googleIdOption)
+                                            .build()
+
+                                        val result = credentialManager.getCredential(context, request)
+                                        val credential = result.credential
+                                        if (credential is androidx.credentials.CustomCredential && credential.type == com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                                            val googleIdTokenCredential = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.createFrom(credential.data)
+                                            val idToken = googleIdTokenCredential.idToken
+                                            val firebaseCredential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+                                            
+                                            com.google.firebase.auth.FirebaseAuth.getInstance().signInWithCredential(firebaseCredential)
+                                                .addOnCompleteListener { task ->
+                                                    if (task.isSuccessful) {
+                                                        scope.launch {
+                                                            viewModel.settingsStore.setTutorialSeen()
+                                                            navController.navigate("library") { popUpTo("setup_wizard") { inclusive = true } }
+                                                        }
+                                                    } else {
+                                                        Toast.makeText(context, "Auth Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                                                    }
+                                                }
+                                        } else {
+                                            Toast.makeText(context, "Unexpected credential type", Toast.LENGTH_SHORT).show()
                                         }
-                                    } else {
-                                        Toast.makeText(context, "Auth Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                                    } catch (e: Exception) {
+                                        // Fallback to anonymous auth if Google Sign In isn't configured in the console yet
+                                        if (e.message?.contains("Missing feature") == true || e.message?.contains("REPLACE_ME") == true || e is androidx.credentials.exceptions.GetCredentialException) {
+                                            com.google.firebase.auth.FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener { task ->
+                                                if (task.isSuccessful) {
+                                                    scope.launch {
+                                                        viewModel.settingsStore.setTutorialSeen()
+                                                        navController.navigate("library") { popUpTo("setup_wizard") { inclusive = true } }
+                                                    }
+                                                } else {
+                                                    Toast.makeText(context, "Anonymous Auth Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                                                }
+                                            }
+                                        } else {
+                                            Toast.makeText(context, "Sign-In Error: ${e.message}", Toast.LENGTH_LONG).show()
+                                        }
                                     }
                                 }
                             }
