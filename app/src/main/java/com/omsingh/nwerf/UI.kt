@@ -238,6 +238,7 @@ fun UploadScreen(viewModel: MainViewModel) {
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedFileName by remember { mutableStateOf("") }
     val isUploading by viewModel.isUploading.collectAsState()
+    val identifiedTrack by viewModel.identifiedTrack.collectAsState()
 
     val filePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -341,7 +342,7 @@ fun UploadScreen(viewModel: MainViewModel) {
                     isRecording = false
                     recorder.stopRecording()
                     recordedFile?.let { file ->
-                        viewModel.identifyAndUploadTrack(file)
+                        viewModel.identifyTrack(file)
                     }
                 } else {
                     isRecording = true
@@ -353,7 +354,7 @@ fun UploadScreen(viewModel: MainViewModel) {
                             isRecording = false
                             recorder.stopRecording()
                             recordedFile?.let { file ->
-                                viewModel.identifyAndUploadTrack(file)
+                                viewModel.identifyTrack(file)
                             }
                         }
                     }
@@ -368,8 +369,42 @@ fun UploadScreen(viewModel: MainViewModel) {
             } else {
                 Icon(Icons.Default.Mic, contentDescription = "Identify")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(if (isRecording) "Listening..." else "Identify & Sync", style = MaterialTheme.typography.titleMedium)
+                Text(if (isRecording) "Listening..." else "Identify Song", style = MaterialTheme.typography.titleMedium)
             }
+        }
+
+        if (identifiedTrack != null) {
+            val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { viewModel.clearIdentifiedTrack() },
+                title = { Text("Track Identified!") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(identifiedTrack!!.title, style = MaterialTheme.typography.headlineSmall)
+                        Text(identifiedTrack!!.artist, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        identifiedTrack!!.album?.let { Text("Album: $it", style = MaterialTheme.typography.bodyMedium) }
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = { viewModel.downloadIdentifiedTrack() }) {
+                        Text("Add to Library")
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = {
+                        coroutineScope.launch {
+                            val url = YouTubePlayer.searchYouTube("${identifiedTrack!!.title} ${identifiedTrack!!.artist}")
+                            if (url != null) {
+                                uriHandler.openUri(url)
+                            } else {
+                                Toast.makeText(context, "Could not find on YouTube", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }) {
+                        Text("Play on YouTube")
+                    }
+                }
+            )
         }
     }
 }

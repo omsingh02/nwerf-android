@@ -251,7 +251,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun identifyAndUploadTrack(file: File) {
+    private val _identifiedTrack = MutableStateFlow<Track?>(null)
+    val identifiedTrack: StateFlow<Track?> = _identifiedTrack.asStateFlow()
+
+    fun clearIdentifiedTrack() {
+        _identifiedTrack.value = null
+    }
+
+    fun identifyTrack(file: File) {
+        viewModelScope.launch {
+            _isUploading.value = true
+            try {
+                // Run network call on IO dispatcher
+                val track = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    val aura = AuraClient("dev_api_key_123")
+                    aura.identify(file)
+                } ?: throw Exception("Identification returned null")
+
+                _identifiedTrack.value = track
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Identify failed"
+            } finally {
+                _isUploading.value = false
+            }
+        }
+    }
+
+    fun downloadIdentifiedTrack() {
+        val track = _identifiedTrack.value ?: return
         viewModelScope.launch {
             _isUploading.value = true
             try {
@@ -261,13 +288,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val gistId = settingsStore.gistId.first()
 
                 // Run network call on IO dispatcher
-                val track = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val fileId = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     val aura = AuraClient("dev_api_key_123")
-                    aura.identifyAndAdd(file, token, chatId)
-                } ?: throw Exception("Identification returned null")
+                    aura.downloadAndUpload(track.title, track.artist, token, chatId)
+                }
+                
+                val finalTrack = track.copy(file_id = fileId)
 
                 // Save locally
-                trackDao.insert(track)
+                trackDao.insert(finalTrack)
 
                 // Sync to GitHub if configured
                 if (!pat.isNullOrEmpty() && !gistId.isNullOrEmpty()) {
@@ -275,9 +304,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val updatedTracks = trackDao.getAllTracks()
                     gh.updateLibraryGist(gistId, updatedTracks)
                 }
+                
+                _identifiedTrack.value = null // Clear on success
 
             } catch (e: Exception) {
-                _errorMessage.value = e.message ?: "Identify & Upload failed"
+                _errorMessage.value = e.message ?: "Download failed"
             } finally {
                 _isUploading.value = false
             }
