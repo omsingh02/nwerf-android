@@ -62,6 +62,10 @@ jobs:
         continue-on-error: true
         run: ./gradlew testDebugUnitTest
 
+      - name: Enable KVM hardware acceleration
+        run: |
+          sudo chown $USER /dev/kvm || true
+
       - name: Run functional UI tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
