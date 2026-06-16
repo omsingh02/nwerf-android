@@ -75,6 +75,13 @@ jobs:
           profile: Nexus 6
           script: ./gradlew connectedCheck --stacktrace
 
+      - name: Dump Test Results on Failure
+        if: failure()
+        run: |
+          echo "=== Android Test Reports ==="
+          find app/build/outputs/androidTest-results/connected/ -name "*.xml" -exec cat {} + || true
+          echo "=== End of Reports ==="
+
       - name: Build with Gradle
         run: ./gradlew assembleDebug assembleRelease -x lintVitalRelease -x lint --stacktrace --info
 
