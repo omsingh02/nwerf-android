@@ -27,7 +27,7 @@ jobs:
         if: "${{ github.event.inputs.zip_url != '' }}"
         run: |
           curl -L "${{ github.event.inputs.zip_url }}" -o project.zip
-          unzip -o project.zip -d .
+          unzip -o project.zip -d . || true
           rm project.zip
 
       - name: Set up JDK 17
