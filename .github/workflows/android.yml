@@ -73,7 +73,7 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 6
-          script: ./gradlew connectedCheck --stacktrace
+          script: ./gradlew connectedCheck --stacktrace || (adb logcat -d && exit 1)
 
       - name: Dump Test Results on Failure
         if: failure()
