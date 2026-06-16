@@ -7,6 +7,12 @@ on:
       - 'v*'
   pull_request:
     branches: [ main, dev ]
+  workflow_dispatch:
+    inputs:
+      zip_url:
+        description: 'URL of the zipped local workspace code'
+        required: false
+        default: ''
 
 jobs:
   build:
@@ -16,6 +22,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Overwrite workspace with local Zip
+        if: "${{ github.event.inputs.zip_url != '' }}"
+        run: |
+          curl -L "${{ github.event.inputs.zip_url }}" -o project.zip
+          unzip -o project.zip -d .
+          rm project.zip
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -66,6 +79,14 @@ jobs:
           name: nwerf-native-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nwerf-native-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 14
+
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
