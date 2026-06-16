@@ -69,9 +69,9 @@ jobs:
       - name: Run functional UI tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
-          target: default
-          arch: x86
+          api-level: 30
+          target: google_apis
+          arch: x86_64
           profile: Nexus 6
           script: ./gradlew connectedCheck --stacktrace
 
