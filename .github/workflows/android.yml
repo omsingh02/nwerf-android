@@ -30,6 +30,7 @@ jobs:
           curl -L "${{ github.event.inputs.zip_url }}" -o project.zip
           rm -rf app/src/
           unzip -o project.zip -d . || true
+          chmod -R 755 app/src/ || true
           rm project.zip
 
       - name: Set up JDK 17
